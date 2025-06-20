@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <title>Kontak Kami</title>
-    <link rel="shortcut icon" href="<?= base_url('assets/images/landing/tab.svg');?>"/>
+    <link rel="shortcut icon" href="{{ asset('assets/images/landing/tab.svg') }}">
     <!-- PRELOADER -->
     <!--<div id="preloader">-->
     <!--    <span class="preloader-dot"></span>-->
@@ -9,6 +9,8 @@
     <!-- END / PRELOADER -->
 
     <!-- PAGE WRAP -->
+    @extends('layouts.app')
+    @section('content')
     <div id="page-wrap">        
         <!-- SUB BANNER -->
         <section class="section-sub-banner bg-9">
@@ -70,5 +72,6 @@
         <!-- END / CONTACT -->
 
     </div>
+    @endsection
     <!-- END / PAGE WRAP -->
 </html>

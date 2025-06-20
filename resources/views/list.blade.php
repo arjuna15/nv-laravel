@@ -58,7 +58,7 @@
                 </div>
 
                 <section class="section-check-availability">
-                    <form action="{{ route('user.filterVillas') }}" method="get">
+                    <form action="{{ route('filterVillas') }}" method="get">
                         <input type="text" name="check_in_date" class="awe-search" placeholder="Tanggal Checkin" value="{{ request('check_in_date') }}">
                         <input type="text" name="check_out_date" class="awe-search" placeholder="Tanggal Checkout" value="{{ request('check_out_date') }}">
                         <select name="kapasitas_villa" class="awe-search">

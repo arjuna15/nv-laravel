@@ -18,11 +18,10 @@ use App\Http\Controllers\UserController;
 */
 
 Route::get('/', [UserController::class, 'index'])->name('index'); // Tambahkan ini
-
-Route::prefix('user')->name('user.')->group(function () {
-    Route::get('/filterVillas', [UserController::class, 'filterVillas'])->name('filterVillas'); // Tambahkan ini
-    Route::get('/list', [UserController::class, 'list'])->name('list'); // Tambahkan ini
-});
+Route::get('/filterVillas', [UserController::class, 'filterVillas'])->name('filterVillas'); // Tambahkan ini
+Route::get('/list', [UserController::class, 'list'])->name('list'); // Tambahkan ini
+Route::get('/kontak', [UserController::class, 'kontak'])->name('kontak'); // Tambahkan ini
+Route::get('/tentang', [UserController::class, 'tentang'])->name('tentang'); // Tambahkan ini
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');

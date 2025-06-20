@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <title>Tentang Kami</title>
-    <link rel="shortcut icon" href="<?= base_url('assets/images/landing/tab.svg');?>"/>
+    <link rel="shortcut icon" href="{{ asset('assets/images/landing/tab.svg') }}">
     <!-- PRELOADER -->
     <!--<div id="preloader">-->
     <!--    <span class="preloader-dot"></span>-->
@@ -9,6 +9,8 @@
     <!-- END / PRELOADER -->
 
     <!-- PAGE WRAP -->
+    @extends('layouts.app')
+    @section('content')
     <div id="page-wrap">
   
         <!-- SUB BANNER -->
@@ -112,7 +114,7 @@
                     <p>"Ngevillayuk" bangga memiliki tim yang bersemangat dan berpengalaman, yang berkomitmen untuk memberikan kualitas terbaik dalam setiap tugas mereka. Keberagaman bakat dan perspektif di dalam tim kami memastikan bahwa kami dapat memenuhi berbagai kebutuhan dan minat pembaca dan pemirsa kami.Terima kasih telah menjadi bagian dari perjalanan kami di Ngevillayuk. Kami berharap dapat terus melayani dan memberikan kontribusi positif bagi masyarakat Bogor dan sekitarnya.</p>
                 </div>
                 <div class="img" align="center">
-                    <img src="<?= base_url('assets/images/landing/team.jpg')?>" width="585" height="300" alt="">
+                    <img src="{{'assets/images/landing/team3.jpg'}}" width="585" height="300" alt="">
                 </div>
 
             </div>
@@ -120,5 +122,6 @@
         <!-- END / TEAM -->
 
     </div>
+    @endsection
     <!-- END / PAGE WRAP -->
 </html>

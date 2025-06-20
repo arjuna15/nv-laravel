@@ -248,7 +248,7 @@
                                      data-x="center" data-y="380"
                                      data-speed="700" data-start="1500" data-easing="easeOutBack">
                                     <h1 style="color:#1b1b1b; font-size: 28px; font-family: 'Cal Sans';">CEK KETERSEDIAAN</h1>
-                                    <form action="{{ route('user.filterVillas') }}" method="get">
+                                    <form action="{{ route('filterVillas') }}" method="get">
                                         <div class="availability-form" style="margin-top:20px">
                                             <input style="border:2px solid #1b1b1b; color:#1b1b1b;" type="text" name="check_in_date" class="awe-calendar from" placeholder="Cekin" value="{{ request('check_in_date') }}">
                                             <input style="border:2px solid #1b1b1b; color:#1b1b1b;" type="text" name="check_out_date" class="awe-calendar to" placeholder="Cekout" value="{{ request('check_out_date') }}">
