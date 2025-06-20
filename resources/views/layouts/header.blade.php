@@ -2,7 +2,7 @@
     <div class="header_content" id="header_content">
         <div class="container">
             <div class="header_logo" id="logo-puncak">
-                <a href="{{ url('/') }}"><img src="{{ asset('assets/images/landing/nvb.png') }}" alt=""></a>
+                <a href="{{ url('/') }}"><img src="{{ asset('assets/images/landing/imagi.svg') }}" alt=""></a>
             </div>
             <nav class="header_menu">
                 <ul class="menu">
