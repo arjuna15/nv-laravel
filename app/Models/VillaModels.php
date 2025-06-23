@@ -116,9 +116,11 @@ class Reservasi extends Model
                    ->get();
     }
 
-    public static function allUpcoming()
+    public static function allUpcoming($villaId)
     {
-        return self::where('check_in_date', '>=', now()->toDateString())->get();
+        return self::where('villa_id', $villaId)
+            ->where('check_in_date', '>=', now()->toDateString())
+            ->get();
     }
 
     public static function addCalendarEntry($villaId, $checkIn, $checkOut)

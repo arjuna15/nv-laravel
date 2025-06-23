@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\VillaModels;
+use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -105,7 +106,7 @@ class UserController extends Controller
 
     public function detail($villaId, $villaName = null)
     {
-        $dataVilla = Villa::find($villaId);
+        $dataVilla = VillaModels::find($villaId);
 
         if (!$dataVilla) {
             abort(404);
@@ -116,13 +117,12 @@ class UserController extends Controller
             return redirect()->route('user.detail', ['villaId' => $villaId, 'villaName' => $expectedVillaName]);
         }
 
-        $reservasi = Villa::reservasiById($villaId);
+        $reservasi = Reservasi::allUpcoming($villaId);
         $dates = collect($reservasi)->pluck('check_in_date');
 
-        return view('layouts.main', [
+        return view('detail', [
             'dataVilla' => $dataVilla,
-            'reserv' => $dates,
-            'content' => 'detail'
+            'reserv' => $dates
         ]);
     }
 

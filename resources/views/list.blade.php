@@ -52,23 +52,50 @@
     <div id="page-wrap">  
         <section class="section-room bg-white">
             <div class="container">
-                <div class="title-section" style="margin-top:100px;">
-                    <h2>List Villa</h2>
-                    <p>Temukan Villa yang anda butuhkan dengan mudah dan cepat</p>
-                </div>
+                <section class="section-room bg-white">
+                    <div class="container">
+                        <div class="room-wrap-1">
+                            <div class="row">
+                                <!-- ITEM -->
+                                <div class="col-md-6">
+                                    <!-- TITLE SECTION -->
+                                    <div class="title-section" style="margin-top:100px";>
+                                        <h2><b>LIST VILLA</b></h2>
+                                        <p>Temukan Villa yang anda butuhkan dengan mudah dan cepat</p>
+                                    </div>
+                                </div>
+                                <!-- END / ITEM -->
+                            </div>
+                        </div>
+                        <!-- END / TITLE SECTION -->
+                    </div>
+                </section>
 
                 <section class="section-check-availability">
-                    <form action="{{ route('filterVillas') }}" method="get">
-                        <input type="text" name="check_in_date" class="awe-search" placeholder="Tanggal Checkin" value="{{ request('check_in_date') }}">
-                        <input type="text" name="check_out_date" class="awe-search" placeholder="Tanggal Checkout" value="{{ request('check_out_date') }}">
-                        <select name="kapasitas_villa" class="awe-search">
-                            <option selected disabled>Kapasitas</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                        </select>
-                        <button type="submit" class="awe-search">Cari Villa</button>
-                    </form>
+                    <div class="container">
+                        <div class="check-availability">
+                            <div class="row v-align">
+                                <div class="col-lg-9">
+                                    <form action="{{ route('filterVillas') }}" method="get">
+                                        <div class="availability-form mb40">
+                                            <input type="text" name="check_in_date" class="awe-calendar from" placeholder="Tanggal Checkin" value="{{ request('check_in_date') }}">
+                                            <input type="text" name="check_out_date" class="awe-calendar to" placeholder="Tanggal Checkout" value="{{ request('check_out_date') }}">
+
+                                            <select class="awe-select" name="kapasitas_villa">
+                                                <option selected disabled>Kapasitas</option>
+                                                <option value="10">10</option>
+                                                <option value="15">15</option>
+                                                <option value="20">20</option>
+                                            </select>
+                                            <div class="vailability-submit">
+                                                    <button type="submit" class="awe-btn awe-btn-13">Cari Villa</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <section class="search-section">
@@ -76,41 +103,44 @@
                 </section>
 
                 <section class="section-room bg-white">
-                    <div class="room-wrap-1">
-                        <div class="row">
-                            @forelse($dataVilla as $villa)
-                                @php
-                                    $price = json_decode($villa->price_villa, true);
-                                    $images = json_decode($villa->images_villa, true);
-                                    $dets = json_decode($villa->detail_villa, true);
-                                @endphp
+                    <div class="container">
+                        <div class="room-wrap-1">
+                            <div class="row">
+                                @forelse($dataVilla as $villa)
+                                    @php
+                                        $price = json_decode($villa->price_villa, true);
+                                        $images = json_decode($villa->images_villa, true);
+                                        $dets = json_decode($villa->detail_villa, true);
+                                    @endphp
 
-                                <div class="col-md-6">
-                                    <div class="room_item-1">
-                                        <h2>{{ $villa->nama_villa }}</h2>
-                                        <div class="img">
-                                            <a href="{{ url('user/detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}">
-                                                <img src="{{ asset('images/' . $images[0]['image']) }}" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="desc">
-                                            <ul>
-                                                <li>Kapasitas: {{ $villa->kapasitas_villa }}</li>
-                                                <li>Kamar Mandi: {{ $dets['kamar_mandi'] }}</li>
-                                                <li>Kamar Tidur: {{ $dets['jumlah_kamar'] }}</li>
-                                                <li>Tempat Tidur: {{ $dets['tempat_tidur'] }}</li>
-                                            </ul>
-                                            <p>Lokasi: {{ $villa->deskripsi_villa }}</p>
-                                        </div>
-                                        <div class="bot">
-                                            <span class="price">Mulai dari <span class="amout">{{ number_format($price['minggu_kamis'], 2, ',', '.') }}</span> /malam</span>
-                                            <a href="{{ url('user/detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}" class="awe-search">Selengkapnya</a>
+                                    <div class="col-md-6">
+                                        <div class="room_item-1">
+                                            <h2>{{ $villa->nama_villa }}</h2>
+                                            <div class="img">
+                                                <a href="{{ url('detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}">
+                                                    <img src="{{ asset('images/' . $images[0]['image']) }}" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="desc">
+                                                <ul>
+                                                    <li>Kapasitas: {{ $villa->kapasitas_villa }}</li>
+                                                    <li>Kamar Mandi: {{ $dets['kamar_mandi'] }}</li>
+                                                    <li>Kamar Tidur: {{ $dets['jumlah_kamar'] }}</li>
+                                                    <li>Tempat Tidur: {{ $dets['tempat_tidur'] }}</li>
+                                                </ul>
+                                                <br>
+                                                <p>Lokasi: {{ $villa->deskripsi_villa }}</p>
+                                            </div>
+                                            <div class="bot">
+                                                <span class="price">Mulai dari <span class="amout">{{ number_format($price['minggu_kamis'], 2, ',', '.') }}</span> /malam</span>
+                                                <a href="{{ url('detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}" class="awe-btn awe-btn-13">Selengkapnya</a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @empty
-                                <p>Villa tidak ditemukan.</p>
-                            @endforelse
+                                @empty
+                                    <p>Villa tidak ditemukan.</p>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 </section>

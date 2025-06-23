@@ -22,6 +22,7 @@ Route::get('/filterVillas', [UserController::class, 'filterVillas'])->name('filt
 Route::get('/list', [UserController::class, 'list'])->name('list'); // Tambahkan ini
 Route::get('/kontak', [UserController::class, 'kontak'])->name('kontak'); // Tambahkan ini
 Route::get('/tentang', [UserController::class, 'tentang'])->name('tentang'); // Tambahkan ini
+Route::get('/detail/{villaId}/{villaName?}', [UserController::class, 'detail'])->name('user.detail');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');

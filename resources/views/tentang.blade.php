@@ -28,22 +28,15 @@
 
         </section>
         <!-- END / SUB BANNER -->
-        <!-- TEAM -->
-        <section class="section-team">
-            <div class="container">
-                <div class="img" align="center">
-                    <img src="assets/images/landing/nvb.png" width="400px" alt="">
-                </div>
-                <br>
-            </div>
-        </section>
-        <!-- END / TEAM -->
+
         <!-- ABOUT -->
         <section class="section-about">
             <div class="container">
-            <div class="about">
+                    <div class="img" align="center">
+                        <img src="{{'assets/images/landing/imagi.svg'}}" width="400px" alt="">
+                    </div>
+                <div class="about" style="margin-top:100px">
 
-                <div class="about">
                     <!-- ITEM -->
                     <div class="text">
                         <h2 class="heading">Tentang Kami</h2>
@@ -57,7 +50,7 @@
                     <!-- END / ITEM -->
                     <br>
                     <!-- ITEM -->
-                    <div class="about-item about-right">
+                    <div class="about-item about">
 
                         <div class="img">
                             <img src="assets/images/about/img-1.jpg" height="300" alt="">
@@ -76,7 +69,7 @@
                     <!-- END / ITEM -->
 
                     <!-- ITEM -->
-                    <div class="about-item">
+                    <div class="about-item about-right">
 
                         <div class="img">
                             <img src="assets/images/about/img-1.jpg" height="300" alt="">
@@ -109,11 +102,11 @@
             <div class="container">
 
                 <div class="team">
-                    <h2 class="heading">TIM KAMI</h2>
+                    <h2 class="heading" style="text-align:center">TIM KAMI</h2>
                     <br>
                     <p>"Ngevillayuk" bangga memiliki tim yang bersemangat dan berpengalaman, yang berkomitmen untuk memberikan kualitas terbaik dalam setiap tugas mereka. Keberagaman bakat dan perspektif di dalam tim kami memastikan bahwa kami dapat memenuhi berbagai kebutuhan dan minat pembaca dan pemirsa kami.Terima kasih telah menjadi bagian dari perjalanan kami di Ngevillayuk. Kami berharap dapat terus melayani dan memberikan kontribusi positif bagi masyarakat Bogor dan sekitarnya.</p>
                 </div>
-                <div class="img" align="center">
+                <div class="img" align="center" style="margin-top:50px;">
                     <img src="{{'assets/images/landing/team3.jpg'}}" width="585" height="300" alt="">
                 </div>
 

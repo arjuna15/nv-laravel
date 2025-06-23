@@ -307,7 +307,7 @@
                                 </div>
                                 <div class="info">
                                     <a class="title bold f26 font-monserat upper" href="#!">Catering</a>
-                                    <p class="text-shadow">Dapatkan Catering dengan harga yang sudah disertakan dengan berbagai macam menu yang sudah kami siapkan.</p>
+                                    <p class="text-shadow">Dapatkan Catering dengan harga yang sudah disertakan dengan <br> berbagai macam menu yang sudah kami siapkan.</p>
                                 </div>
                             </div>
                         </div>
