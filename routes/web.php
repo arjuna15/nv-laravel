@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VilaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,3 +62,10 @@ Route::middleware('auth:admin')->group(function () {
 
 });
 
+// Halaman Dashboard AdminLTE
+Route::get('/master', function () {
+    return view('layout.master');
+});
+
+// CRUD Villa
+Route::resource('vila', VilaController::class);
