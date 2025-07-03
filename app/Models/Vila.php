@@ -16,8 +16,7 @@ class Vila extends Model
         'nama_vila',
         'lokasi_vila',
         'kapasitas_vila',
-        'jumlah_kamar_tidur',
-        'jumlah_tempat_tidur',
+        'jumlah_tempat_tidur_dan_kamar',
         'jumlah_kamar_mandi',
         'jumlah_area_parkir_mobil',
         'jumlah_area_parkir_bus',
@@ -31,6 +30,8 @@ class Vila extends Model
     ];
 
     protected $casts = [
-        'fasilitas_vila' => 'array',
+    'fasilitas_vila' => 'array',
+    'jumlah_tempat_tidur_dan_kamar' => 'array',
+    'gambar' => 'array',
     ];
 }

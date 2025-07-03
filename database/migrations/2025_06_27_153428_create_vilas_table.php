@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('vilas', function (Blueprint $table) {
@@ -16,8 +13,7 @@ return new class extends Migration
             $table->string('nama_vila');
             $table->string('lokasi_vila');
             $table->integer('kapasitas_vila');
-            $table->integer('jumlah_kamar_tidur');
-            $table->integer('jumlah_tempat_tidur');
+            $table->json('jumlah_tempat_tidur_dan_kamar')->nullable(); // Diganti jadi array
             $table->integer('jumlah_kamar_mandi');
             $table->integer('jumlah_area_parkir_mobil');
             $table->enum('jumlah_area_parkir_bus', ['Ya', 'Tidak']);
@@ -32,9 +28,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('vilas');

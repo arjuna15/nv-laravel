@@ -33,8 +33,9 @@ class VilaController extends Controller
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
             'kapasitas_vila' => 'required|integer',
-            'jumlah_kamar_tidur' => 'required|integer',
-            'jumlah_tempat_tidur' => 'required|integer',
+            'jumlah_tempat_tidur_dan_kamar' => 'required|array',
+            'jumlah_tempat_tidur_dan_kamar.jumlah_kamar_tidur' => 'required|integer',
+            'jumlah_tempat_tidur_dan_kamar.jumlah_tempat_tidur' => 'required|integer',
             'jumlah_kamar_mandi' => 'required|integer',
             'jumlah_area_parkir_mobil' => 'required|integer',
             'jumlah_area_parkir_bus' => 'required|in:Ya,Tidak',
@@ -56,18 +57,17 @@ class VilaController extends Controller
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
             'kapasitas_vila' => $request->kapasitas_vila,
-            'jumlah_kamar_tidur' => $request->jumlah_kamar_tidur,
-            'jumlah_tempat_tidur' => $request->jumlah_tempat_tidur,
+            'jumlah_tempat_tidur_dan_kamar' => $request->jumlah_tempat_tidur_dan_kamar,
             'jumlah_kamar_mandi' => $request->jumlah_kamar_mandi,
             'jumlah_area_parkir_mobil' => $request->jumlah_area_parkir_mobil,
             'jumlah_area_parkir_bus' => $request->jumlah_area_parkir_bus,
             'kedalaman_luas_kolam' => $request->kedalaman_luas_kolam,
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
-            'fasilitas_vila' => json_encode($request->fasilitas_vila),
+            'fasilitas_vila' => $request->fasilitas_vila,
             'harga_minggu_kamis' => $request->harga_minggu_kamis,
             'harga_jumat' => $request->harga_jumat,
             'harga_sabtu' => $request->harga_sabtu,
-            'gambar' => json_encode($gambar),
+            'gambar' => array_values($gambar), // simpan array langsung
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil disimpan.');
@@ -83,13 +83,13 @@ class VilaController extends Controller
     {
         $vila = Vila::findOrFail($vila_id);
 
-        // Validasi tetap
         $request->validate([
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
             'kapasitas_vila' => 'required|integer',
-            'jumlah_kamar_tidur' => 'required|integer',
-            'jumlah_tempat_tidur' => 'required|integer',
+            'jumlah_tempat_tidur_dan_kamar' => 'required|array',
+            'jumlah_tempat_tidur_dan_kamar.jumlah_kamar_tidur' => 'required|integer',
+            'jumlah_tempat_tidur_dan_kamar.jumlah_tempat_tidur' => 'required|integer',
             'jumlah_kamar_mandi' => 'required|integer',
             'jumlah_area_parkir_mobil' => 'required|integer',
             'jumlah_area_parkir_bus' => 'required|in:Ya,Tidak',
@@ -99,9 +99,9 @@ class VilaController extends Controller
             'gambar.*' => 'image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $gambar = json_decode($vila->gambar) ?? [];
+        $gambar = $vila->gambar ?? [];
 
-        // Proses hapus gambar
+        // Hapus gambar lama jika dipilih
         if ($request->hapus_gambar) {
             foreach ($request->hapus_gambar as $gbr) {
                 if (Storage::disk('public')->exists($gbr)) {
@@ -113,35 +113,32 @@ class VilaController extends Controller
             }
         }
 
-        // Proses upload gambar baru
+        // Upload gambar baru jika ada
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
                 $gambar[] = $file->store('gambar_vila', 'public');
             }
         }
 
-        // Cek minimal 5 gambar tersisa
         if (count($gambar) < 5) {
             return redirect()->back()->with('error', 'Minimal harus ada 5 gambar pada vila.');
         }
 
-        // Update data
         $vila->update([
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
             'kapasitas_vila' => $request->kapasitas_vila,
-            'jumlah_kamar_tidur' => $request->jumlah_kamar_tidur,
-            'jumlah_tempat_tidur' => $request->jumlah_tempat_tidur,
+            'jumlah_tempat_tidur_dan_kamar' => $request->jumlah_tempat_tidur_dan_kamar,
             'jumlah_kamar_mandi' => $request->jumlah_kamar_mandi,
             'jumlah_area_parkir_mobil' => $request->jumlah_area_parkir_mobil,
             'jumlah_area_parkir_bus' => $request->jumlah_area_parkir_bus,
             'kedalaman_luas_kolam' => $request->kedalaman_luas_kolam,
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
-            'fasilitas_vila' => json_encode($request->fasilitas_vila),
+            'fasilitas_vila' => $request->fasilitas_vila,
             'harga_minggu_kamis' => $request->harga_minggu_kamis,
             'harga_jumat' => $request->harga_jumat,
             'harga_sabtu' => $request->harga_sabtu,
-            'gambar' => json_encode(array_values($gambar)),
+            'gambar' => array_values($gambar),
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil diupdate.');
@@ -151,7 +148,8 @@ class VilaController extends Controller
     {
         $vila = Vila::findOrFail($vila_id);
 
-        $gambar = json_decode($vila->gambar);
+        $gambar = $vila->gambar;
+
         if ($gambar) {
             foreach ($gambar as $gbr) {
                 if (Storage::disk('public')->exists($gbr)) {

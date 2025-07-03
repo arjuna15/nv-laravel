@@ -14,13 +14,15 @@
 </div>
 
 <div class="form-group">
-    <label>Jumlah Kamar Tidur</label>
-    <input type="number" name="jumlah_kamar_tidur" class="form-control" value="{{ old('jumlah_kamar_tidur', $vila->jumlah_kamar_tidur ?? '') }}">
-</div>
+    <label>Jumlah Kamar Tidur & Tempat Tidur</label>
 
-<div class="form-group">
-    <label>Jumlah Tempat Tidur</label>
-    <input type="number" name="jumlah_tempat_tidur" class="form-control" value="{{ old('jumlah_tempat_tidur', $vila->jumlah_tempat_tidur ?? '') }}">
+    <input type="number" name="jumlah_tempat_tidur_dan_kamar[jumlah_kamar_tidur]" class="form-control mb-2"
+        placeholder="Jumlah Kamar Tidur"
+        value="{{ old('jumlah_tempat_tidur_dan_kamar.jumlah_kamar_tidur') ?? ($vila->jumlah_tempat_tidur_dan_kamar['jumlah_kamar_tidur'] ?? '') }}">
+
+    <input type="number" name="jumlah_tempat_tidur_dan_kamar[jumlah_tempat_tidur]" class="form-control"
+        placeholder="Jumlah Tempat Tidur"
+        value="{{ old('jumlah_tempat_tidur_dan_kamar.jumlah_tempat_tidur') ?? ($vila->jumlah_tempat_tidur_dan_kamar['jumlah_tempat_tidur'] ?? '') }}">
 </div>
 
 <div class="form-group">
@@ -55,7 +57,7 @@
     <label>Fasilitas Vila</label>
     <div id="fasilitas-container">
         @if(isset($vila) && $vila->fasilitas_vila)
-            @foreach(json_decode($vila->fasilitas_vila) as $fasilitas)
+            @foreach($vila->fasilitas_vila as $fasilitas)
                 <div class="input-group mb-2">
                     <input type="text" name="fasilitas_vila[]" class="form-control" value="{{ $fasilitas }}">
                     <div class="input-group-append">
@@ -94,9 +96,9 @@
     <label>Upload Gambar (Minimal 5, Maksimal 50)</label>
     <input type="file" name="gambar[]" class="form-control" multiple>
 
-    @if (isset($vila) && $vila->gambar)
+    @if (isset($vila) && is_array($vila->gambar))
         <div class="mt-3">
-            @foreach (json_decode($vila->gambar) as $gambar)
+            @foreach ($vila->gambar as $gambar)
                 <div class="mb-2">
                     <img src="{{ asset('storage/' . $gambar) }}" width="100" class="mr-2">
                     <label class="ml-2">
