@@ -68,7 +68,7 @@
 
         <!-- Info Tanggal  -->
         <li class="nav-item">
-          <a href="{{ route('calendarVilla') }}" class="nav-link {{ Request::is('/calendar') ? 'active' : '' }}">
+          <a href="{{ route('vila.calendar') }}" class="nav-link {{ Request::is('/calendar') ? 'active' : '' }}">
             <i class="nav-icon far fa-calendar-alt"></i>
             <p>Info Tanggal</p>
           </a>

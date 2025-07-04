@@ -70,6 +70,8 @@ Route::get('/calendar', [VilaController::class, 'calendarVilla'])->name('calenda
 Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name('vila.tambahTanggal');
 Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
 Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
+Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
+Route::get('/calendar/{data}', [UserController::class, 'calendar'])->name('calendar.show');
 
 
 

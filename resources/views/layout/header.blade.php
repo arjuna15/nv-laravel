@@ -30,6 +30,6 @@
 <div class="wrapper">
 
   <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
+  <!-- <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="{{ asset('nv/img/logo_ngevillayuk_nobg.png') }}" alt="AdminLTELogo" height="250" width="300">
-  </div>
+  </div> -->

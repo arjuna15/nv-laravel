@@ -192,13 +192,39 @@ class VilaController extends Controller
         return redirect()->back()->with('success', 'Reservasi berhasil Ditambah.');
     }
 
-    public function destroyTanggal($id)
+    public function calendar()
     {
-        $reservasi = Reservasi::findOrFail($id);
-        $reservasi->delete();
+        $allVillas = Vila::getAll();
+        $vgadata = [];
 
-        return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
+        foreach ($allVillas as $villa) {
+            $detailVilla = json_decode($villa->detail_villa, true);
+
+            $datashow = [
+                'orang' => $villa->kapasitas_vila,
+                'kamar' => $detailVilla['jumlah_kamar'] ?? '-',
+                'bed'   => $detailVilla['jumlah_tempat_tidur'] ?? '-',
+                'bath'  => $detailVilla['jumlah_kamar_mandi'] ?? '-',
+                'park'  => $detailVilla['jumlah_parkir_mobil'] ?? '-',
+            ];
+
+            $reservasi = Reservasi::where('vila_id', $villa->vila_id)->get();
+            $reservDate = $reservasi->pluck('check_in_date')->toArray();
+
+
+            $vgadata[$villa->vila_id] = [
+                'image' => $villa->images_vila,
+                'nama' => $villa->nama_vila,
+                'detail' => $datashow,
+                'reserv' => $reservDate
+            ];
+        }
+
+        return view('vila.kalender', [
+            'vgadata' => $vgadata,
+        ]);
     }
+
 
 
 
