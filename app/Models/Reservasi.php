@@ -14,7 +14,7 @@ class Reservasi extends Model
 
 
     protected $fillable = [
-        'vila_id', 'check_in_date', 'check_out_date'
+        'vila_id', 'nama_tamu', 'check_in_date', 'check_out_date'
     ];
 
     public static function byVilla($villaId)
@@ -24,10 +24,11 @@ class Reservasi extends Model
                    ->get();
     }
 
-    public static function addCalender($villaId, $checkIn, $checkOut)
+    public static function addCalender($villaId, $namaTamu, $checkIn, $checkOut)
     {
         return self::create([
             'vila_id' => $villaId,
+            'nama_tamu' => $namaTamu,
             'check_in_date' => Carbon::parse($checkIn)->format('Y-m-d'),
             'check_out_date' => Carbon::parse($checkOut)->format('Y-m-d'),
         ]);

@@ -62,7 +62,7 @@
         <li class="nav-item">
           <a href="{{ route('calendarVilla') }}" class="nav-link {{ Request::is('/calendar') ? 'active' : '' }}">
             <i class="nav-icon far fa-calendar-alt"></i>
-            <p>Tambah Kalender</p>
+            <p>Info Bookingan</p>
           </a>
         </li>
 

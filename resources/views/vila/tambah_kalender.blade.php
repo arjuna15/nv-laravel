@@ -12,6 +12,11 @@
 
             <div class="card-body">
                 <div class="form-group">
+                    <label for="nama_tamu">Nama Tamu</label>
+                    <input id="nama_tamu" name="nama_tamu" type="text" class="form-control" required>
+                </div>
+
+                <div class="form-group">
                     <label for="check_in_date">Tanggal Check-in</label>
                     <input id="check_in_date" name="check_in_date" type="date" class="form-control" required>
                 </div>
@@ -43,6 +48,7 @@
                         <thead class="thead-light">
                             <tr>
                                 <th>No</th>
+                                <th>Nama Tamu</th>
                                 <th>Check-in</th>
                                 <th>Check-out</th>
                                 <th>Aksi</th>
@@ -52,10 +58,14 @@
                             @foreach($reservasi as $index => $r)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
+                                    <td>{{ $r->nama_tamu }}</td>
                                     <td>{{ \Carbon\Carbon::parse($r->check_in_date)->translatedFormat('d F Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($r->check_out_date)->translatedFormat('d F Y') }}</td>
                                     <td>
-                                        <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
+                                        <a href="{{ route('vila.invoice', $r->id) }}" target="_blank" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-file-invoice"></i> Cetak Invoice
+                                        </a>
+                                        <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">
@@ -63,6 +73,8 @@
                                             </button>
                                         </form>
                                     </td>
+
+
                                 </tr>
                             @endforeach
                         </tbody>

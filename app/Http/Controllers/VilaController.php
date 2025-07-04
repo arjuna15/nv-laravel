@@ -179,12 +179,14 @@ class VilaController extends Controller
     {
         $request->validate([
             'vila_id' => 'required|exists:vilas,vila_id',
+            'nama_tamu' => 'required',
             'check_in_date' => 'required|date',
             'check_out_date' => 'required|date|after_or_equal:check_in_date',
         ]);
 
         Reservasi::addCalender(
             $request->vila_id,
+            $request->nama_tamu,
             $request->check_in_date,
             $request->check_out_date
         );
@@ -225,7 +227,14 @@ class VilaController extends Controller
         ]);
     }
 
+    public function cetakInvoice($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+        $villa = Vila::findOrFail($reservasi->vila_id);
 
-
-
+        return view('vila.invoice', [
+            'reservasi' => $reservasi,
+            'villa' => $villa
+        ]);
+    }
 }

@@ -47,7 +47,7 @@
                             </td>
                             <td>
                                 <a href="{{ route('vila.tambahTanggal', ['vila_id' => $villas['vila_id']]) }}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-calendar-plus"></i> Tanggal
+                                    <i class="fas fa-calendar-plus"></i> CEK
                                 </a>
                             </td>
                         </tr>

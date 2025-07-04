@@ -72,7 +72,7 @@ Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.stor
 Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
 Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
 Route::get('/calendar/{data}', [UserController::class, 'calendar'])->name('calendar.show');
-
+Route::get('/invoice/{id}', [VilaController::class, 'cetakInvoice'])->name('vila.invoice');
 
 
 // CRUD Villa
