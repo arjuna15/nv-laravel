@@ -58,6 +58,22 @@
           </a>
         </li>
 
+        <!-- Tambah Kalender -->
+        <li class="nav-item">
+          <a href="{{ route('calendarVilla') }}" class="nav-link {{ Request::is('/calendar') ? 'active' : '' }}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Tambah Kalender</p>
+          </a>
+        </li>
+
+        <!-- Info Tanggal  -->
+        <li class="nav-item">
+          <a href="{{ route('calendarVilla') }}" class="nav-link {{ Request::is('/calendar') ? 'active' : '' }}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Info Tanggal</p>
+          </a>
+        </li>
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

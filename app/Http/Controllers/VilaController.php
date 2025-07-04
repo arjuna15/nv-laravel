@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vila;
+use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,16 +33,9 @@ class VilaController extends Controller
         $request->validate([
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
-            'kapasitas_vila' => 'required|integer',
-            'jumlah_tempat_tidur_dan_kamar' => 'required|array',
-            'jumlah_tempat_tidur_dan_kamar.jumlah_kamar_tidur' => 'required|integer',
-            'jumlah_tempat_tidur_dan_kamar.jumlah_tempat_tidur' => 'required|integer',
-            'jumlah_kamar_mandi' => 'required|integer',
-            'jumlah_area_parkir_mobil' => 'required|integer',
-            'jumlah_area_parkir_bus' => 'required|in:Ya,Tidak',
-            'harga_minggu_kamis' => 'required|integer',
-            'harga_jumat' => 'required|integer',
-            'harga_sabtu' => 'required|integer',
+            'kapasitas_vila' => 'required',
+            'detail' => 'required',
+            'harga_villa' => 'required',
             'gambar' => 'required|array|min:5|max:50',
             'gambar.*' => 'image|mimes:jpg,jpeg,png|max:2048',
         ]);
@@ -57,18 +51,14 @@ class VilaController extends Controller
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
             'kapasitas_vila' => $request->kapasitas_vila,
-            'jumlah_tempat_tidur_dan_kamar' => $request->jumlah_tempat_tidur_dan_kamar,
-            'jumlah_kamar_mandi' => $request->jumlah_kamar_mandi,
-            'jumlah_area_parkir_mobil' => $request->jumlah_area_parkir_mobil,
-            'jumlah_area_parkir_bus' => $request->jumlah_area_parkir_bus,
+            'detail' => $request->detail,
             'kedalaman_luas_kolam' => $request->kedalaman_luas_kolam,
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
             'fasilitas_vila' => $request->fasilitas_vila,
-            'harga_minggu_kamis' => $request->harga_minggu_kamis,
-            'harga_jumat' => $request->harga_jumat,
-            'harga_sabtu' => $request->harga_sabtu,
+            'harga_villa' => $request->harga_villa,
             'gambar' => array_values($gambar), // simpan array langsung
         ]);
+
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil disimpan.');
     }
@@ -86,16 +76,9 @@ class VilaController extends Controller
         $request->validate([
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
-            'kapasitas_vila' => 'required|integer',
-            'jumlah_tempat_tidur_dan_kamar' => 'required|array',
-            'jumlah_tempat_tidur_dan_kamar.jumlah_kamar_tidur' => 'required|integer',
-            'jumlah_tempat_tidur_dan_kamar.jumlah_tempat_tidur' => 'required|integer',
-            'jumlah_kamar_mandi' => 'required|integer',
-            'jumlah_area_parkir_mobil' => 'required|integer',
-            'jumlah_area_parkir_bus' => 'required|in:Ya,Tidak',
-            'harga_minggu_kamis' => 'required|integer',
-            'harga_jumat' => 'required|integer',
-            'harga_sabtu' => 'required|integer',
+            'kapasitas_vila' => 'required',
+            'detail' => 'required',
+            'harga_villa' => 'required',
             'gambar.*' => 'image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -128,17 +111,12 @@ class VilaController extends Controller
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
             'kapasitas_vila' => $request->kapasitas_vila,
-            'jumlah_tempat_tidur_dan_kamar' => $request->jumlah_tempat_tidur_dan_kamar,
-            'jumlah_kamar_mandi' => $request->jumlah_kamar_mandi,
-            'jumlah_area_parkir_mobil' => $request->jumlah_area_parkir_mobil,
-            'jumlah_area_parkir_bus' => $request->jumlah_area_parkir_bus,
+            'detail' => $request->detail,
             'kedalaman_luas_kolam' => $request->kedalaman_luas_kolam,
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
             'fasilitas_vila' => $request->fasilitas_vila,
-            'harga_minggu_kamis' => $request->harga_minggu_kamis,
-            'harga_jumat' => $request->harga_jumat,
-            'harga_sabtu' => $request->harga_sabtu,
-            'gambar' => array_values($gambar),
+            'harga_villa' => $request->harga_villa,
+            'gambar' => array_values($gambar), // simpan array langsung
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil diupdate.');
@@ -162,4 +140,66 @@ class VilaController extends Controller
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil dihapus.');
     }
+
+    public function calendarVilla()
+    {
+        $datas = Vila::getAll();
+        $vgadata = [];
+
+        foreach ($datas as $datad) {
+            $date = [];
+
+            $reservasi = Reservasi::byVilla($datad->vila_id);
+
+            foreach ($reservasi as $reserv) {
+                $date[] = $reserv->check_in_date;
+            }
+
+            $vgadata[] = [
+                "vila_id" => $datad->vila_id,
+                "nama_vila" => $datad->nama_vila,
+                "jumlah_reserv" => $date
+            ];
+        }
+        return view('vila.datakalender', [
+            'villa' => $vgadata,
+        ]);
+    }
+
+    public function tambahTanggal($id)
+    {
+        $villa = Vila::getById($id);
+        $reservasi = Reservasi::where('vila_id', $id)->orderBy('check_in_date', 'asc')->get();
+
+        return view('vila.tambah_kalender', compact('villa', 'reservasi'));
+    }
+
+
+    public function storeTanggal(Request $request)
+    {
+        $request->validate([
+            'vila_id' => 'required|exists:vilas,vila_id',
+            'check_in_date' => 'required|date',
+            'check_out_date' => 'required|date|after_or_equal:check_in_date',
+        ]);
+
+        Reservasi::addCalender(
+            $request->vila_id,
+            $request->check_in_date,
+            $request->check_out_date
+        );
+
+        return redirect()->back()->with('success', 'Reservasi berhasil Ditambah.');
+    }
+
+    public function destroyTanggal($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+        $reservasi->delete();
+
+        return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
+    }
+
+
+
 }

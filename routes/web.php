@@ -66,6 +66,12 @@ Route::middleware('auth:admin')->group(function () {
 Route::get('/master', function () {
     return view('layout.master');
 });
+Route::get('/calendar', [VilaController::class, 'calendarVilla'])->name('calendarVilla');
+Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name('vila.tambahTanggal');
+Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
+Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
+
+
 
 // CRUD Villa
 Route::resource('vila', VilaController::class);

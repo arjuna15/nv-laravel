@@ -16,22 +16,28 @@ class Vila extends Model
         'nama_vila',
         'lokasi_vila',
         'kapasitas_vila',
-        'jumlah_tempat_tidur_dan_kamar',
-        'jumlah_kamar_mandi',
-        'jumlah_area_parkir_mobil',
-        'jumlah_area_parkir_bus',
+        'detail',
         'kedalaman_luas_kolam',
         'fasilitas_tambahan_vila',
         'fasilitas_vila',
-        'harga_minggu_kamis',
-        'harga_jumat',
-        'harga_sabtu',
+        'harga_villa',
         'gambar',
     ];
 
     protected $casts = [
     'fasilitas_vila' => 'array',
-    'jumlah_tempat_tidur_dan_kamar' => 'array',
+    'detail' => 'array',
+    'harga_villa' => 'array',
     'gambar' => 'array',
     ];
+
+    public static function getAll()
+    {
+        return self::all();
+    }
+
+    public static function getById($id)
+    {
+        return self::where('vila_id', $id)->first();
+    }
 }
