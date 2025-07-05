@@ -1,14 +1,3 @@
-@php
-    $images = json_decode($dataVilla->images_villa, true);
-    $dets = json_decode($dataVilla->detail_villa, true); 
-    $facils = json_decode($dataVilla->fasilitas_villa, true);
-    $price = json_decode($dataVilla->price_villa, true);
-    $nama_villa = $dataVilla->nama_villa;
-    $kapasitas_villa = $dataVilla->kapasitas_villa;
-    $deskripsi_villa = $dataVilla->deskripsi_villa;
-    $kolam_villa = $dataVilla->kolam_villa;
-@endphp
-
 @extends('layouts.app')
 @section('title', 'Detail ' . $nama_villa)
 @section('content')
@@ -52,7 +41,7 @@
                                 </p>
                                 <br>
                                 <p class="price">
-                                    <span class="amout" align="left">Rp {{ number_format($price['sabtu_weeekend'], 0, ',', '.') }}</span> <h7>sabtu & hari libur</h7>
+                                    <span class="amout" align="left">Rp {{ number_format($price['sabtu'], 0, ',', '.') }}</span> <h7>sabtu & hari libur</h7>
                                 </p>
                             </div>
 
@@ -112,9 +101,9 @@
                                             <ul>
                                                 <li>Kapasitas Max: {{ $dataVilla->kapasitas_villa }} Orang</li>
                                                 <li>Kamar Tidur: {{ $dets['jumlah_kamar'] }} Kamar</li>
-                                                <li>Tempat Tidur: {{ $dets['tempat_tidur'] }} Kasur</li>
-                                                <li>Kamar Mandi: {{ $dets['kamar_mandi'] }} Kamar Mandi</li>
-                                                <li>Parkir Mobil: {{ $dets['parkir_mobil'] }} Mobil</li>
+                                                <li>Tempat Tidur: {{ $dets['jumlah_tempat_tidur'] }} Kasur</li>
+                                                <li>Kamar Mandi: {{ $dets['jumlah_kamar_mandi'] }} Kamar Mandi</li>
+                                                <li>Parkir Mobil: {{ $dets['jumlah_parkir'] }} Mobil</li>
                                                 <li>Luas & Kedalaman Kolam: {{ $dataVilla->luas_kolam_villa }} M &nbsp; {{ $dataVilla->kedalaman_kolam }} M</li>
                                             </ul>
                                         </div>
@@ -122,33 +111,32 @@
                                     <div class="row">
                                         <div class="col-xs-6 col-lg-4">
                                             <h6>Detail Fasilitas</h6>
+
                                             @php
                                                 $facils_count = count($facils);
                                                 $facils_per_column = 5;
                                                 $column_count = ceil($facils_count / $facils_per_column);
-                                                $current_facil_index = 0;
                                             @endphp
 
                                             @for ($i = 0; $i < $column_count; $i++)
                                                 <ul>
                                                     @for ($j = 0; $j < $facils_per_column; $j++)
-                                                        @if ($current_facil_index < $facils_count)
-                                                            @php $fac = $facils[$current_facil_index]; @endphp
-                                                            @if (!empty($fac['facility']))
-                                                                <li>{{ $fac['facility'] }}</li>
-                                                            @endif
-                                                            @php $current_facil_index++; @endphp
-                                                        @else
-                                                            @break
+                                                        @php
+                                                            $index = $i * $facils_per_column + $j;
+                                                        @endphp
+
+                                                        @if ($index < $facils_count && !empty($facils[$index]))
+                                                            <li>{{ $facils[$index] }}</li>
                                                         @endif
                                                     @endfor
                                                 </ul>
                                             @endfor
+
                                         </div>
                                     </div>
                                     <br>
-                                    <div class="col-xs-12 col-lg-12"><h6>• Fasilitas Tambahan : {{ $dets['tambahan'] }}</h6></div>
-                                    <div class="col-xs-12 col-lg-12"><h6>• Lokasi : {{ $dataVilla->deskripsi_villa }}</h6></div>
+                                    <div class="col-xs-12 col-lg-12"><h6>• Fasilitas Tambahan : {{ $dataVilla->fasilitas_tambahan_vila }}</h6></div>
+                                    <div class="col-xs-12 col-lg-12"><h6>• Lokasi : {{ $dataVilla->lokasi_vila }}</h6></div>
                                 </div>
                             </div>
 

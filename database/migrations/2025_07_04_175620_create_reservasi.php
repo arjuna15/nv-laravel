@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('reservasi', function (Blueprint $table) {
             $table->id(); // PRIMARY KEY, AUTO_INCREMENT
-            $table->unsignedBigInteger('villa_id');
+            $table->unsignedBigInteger('vila_id');
+            $table->string('nama_tamu');
             $table->date('check_in_date');
             $table->date('check_out_date');
             $table->timestamps(); // created_at & updated_at

@@ -108,32 +108,33 @@
                             <div class="row">
                                 @forelse($dataVilla as $villa)
                                     @php
-                                        $price = json_decode($villa->price_villa, true);
-                                        $images = json_decode($villa->images_villa, true);
-                                        $dets = json_decode($villa->detail_villa, true);
+                                        $price = is_string($villa->harga_villa) ? json_decode($villa->harga_villa, true) : $villa->harga_villa;
+                                        $images = is_string($villa->gambar) ? json_decode($villa->gambar, true) : $villa->gambar;
+                                        $dets = is_string($villa->detail) ? json_decode($villa->detail, true) : $villa->detail;
                                     @endphp
+
 
                                     <div class="col-md-6">
                                         <div class="room_item-1">
                                             <h2>{{ $villa->nama_villa }}</h2>
                                             <div class="img">
-                                                <a href="{{ url('detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}">
+                                                <a href="{{ url('detail/' . $villa->vila_id . '/' . Str::slug($villa->nama_villa)) }}">
                                                     <img src="{{ asset('images/' . $images[0]['image']) }}" alt="">
                                                 </a>
                                             </div>
                                             <div class="desc">
                                                 <ul>
-                                                    <li>Kapasitas: {{ $villa->kapasitas_villa }}</li>
-                                                    <li>Kamar Mandi: {{ $dets['kamar_mandi'] }}</li>
+                                                    <li>Kapasitas: {{ $villa->kapasitas_vila }}</li>
+                                                    <li>Kamar Mandi: {{ $dets['jumlah_kamar_mandi'] }}</li>
                                                     <li>Kamar Tidur: {{ $dets['jumlah_kamar'] }}</li>
-                                                    <li>Tempat Tidur: {{ $dets['tempat_tidur'] }}</li>
+                                                    <li>Tempat Tidur: {{ $dets['jumlah_tempat_tidur'] }}</li>
                                                 </ul>
                                                 <br>
                                                 <p>Lokasi: {{ $villa->deskripsi_villa }}</p>
                                             </div>
                                             <div class="bot">
                                                 <span class="price">Mulai dari <span class="amout">{{ number_format($price['minggu_kamis'], 2, ',', '.') }}</span> /malam</span>
-                                                <a href="{{ url('detail/' . $villa->villa_id . '/' . Str::slug($villa->nama_villa)) }}" class="awe-btn awe-btn-13">Selengkapnya</a>
+                                                <a href="{{ url('detail/' . $villa->vila_id . '/' . Str::slug($villa->nama_villa)) }}" class="awe-btn awe-btn-13">Selengkapnya</a>
                                             </div>
                                         </div>
                                     </div>

@@ -6,6 +6,7 @@ use App\Models\Vila;
 use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image as ImageManager;
 
 class VilaController extends Controller
 {
@@ -41,12 +42,28 @@ class VilaController extends Controller
         ]);
 
         $gambar = [];
+
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
-                $gambar[] = $file->store('gambar_vila', 'public');
+                // Buat nama unik
+                $fileName = time() . '_' . uniqid() . '.jpg';
+                $savePath = public_path('images/' . $fileName);
+
+                try {
+                    // Konversi dan simpan gambar dengan quality 85%
+                    ImageManager::make($file->getRealPath())
+                        ->encode('jpg', 85)
+                        ->save($savePath);
+
+                    // Simpan dalam bentuk array of object
+                    $gambar[] = ['image' => $fileName];
+                } catch (\Exception $e) {
+                    \Log::error("Gagal menyimpan gambar ($fileName): " . $e->getMessage());
+                }
             }
         }
 
+        // Simpan ke DB
         Vila::create([
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
@@ -56,12 +73,12 @@ class VilaController extends Controller
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
             'fasilitas_vila' => $request->fasilitas_vila,
             'harga_villa' => $request->harga_villa,
-            'gambar' => array_values($gambar), // simpan array langsung
+            'gambar' => json_encode($gambar), // penting: encode jadi JSON string
         ]);
-
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil disimpan.');
     }
+
 
     public function edit($vila_id)
     {
@@ -194,6 +211,14 @@ class VilaController extends Controller
         return redirect()->back()->with('success', 'Reservasi berhasil Ditambah.');
     }
 
+    public function destroyTanggal($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+        $reservasi->delete();
+
+        return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
+    }
+
     public function calendar()
     {
         $allVillas = Vila::getAll();
@@ -224,6 +249,27 @@ class VilaController extends Controller
 
         return view('vila.kalender', [
             'vgadata' => $vgadata,
+        ]);
+    }
+
+    public function show($encodedData)
+    {
+        // Decode dari base64 dan parse JSON
+        $decoded = base64_decode($encodedData, true);
+        $rawDates = json_decode($decoded, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            abort(400, 'Invalid booking data');
+        }
+
+        // Potong tanggal agar jadi YYYY-MM-DD (tanpa waktu)
+        $dates = array_map(function ($item) {
+            return substr($item, 0, 10);
+        }, $rawDates);
+
+        // Encode ulang sebagai base64 untuk dikirim ke Blade
+        return view('layouts.calendar', [
+            'datedata' => base64_encode(json_encode($dates))
         ]);
     }
 

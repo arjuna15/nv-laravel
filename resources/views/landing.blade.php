@@ -252,11 +252,11 @@
                                         <div class="availability-form" style="margin-top:20px">
                                             <input style="border:2px solid #1b1b1b; color:#1b1b1b;" type="text" name="check_in_date" class="awe-calendar from" placeholder="Cekin" value="{{ request('check_in_date') }}">
                                             <input style="border:2px solid #1b1b1b; color:#1b1b1b;" type="text" name="check_out_date" class="awe-calendar to" placeholder="Cekout" value="{{ request('check_out_date') }}">
-                                            <select class="awe-select" name="kapasitas_villa" style="width:50px !important;">
-                                                <option value="Kapasitas" {{ request('kapasitas_villa') == 'Kapasitas' ? 'selected' : '' }}>Kapasitas</option>
+                                            <select class="awe-select" name="kapasitas_vila" style="width:50px !important;">
+                                                <option value="Kapasitas" {{ request('kapasitas_vila') == 'Kapasitas' ? 'selected' : '' }}>Kapasitas</option>
                                                 @foreach ($kapasitas as $k)
-                                                    <option value="{{ $k->kapasitas_villa }}" {{ request('kapasitas_villa') == $k->kapasitas_villa ? 'selected' : '' }}>
-                                                        {{ $k->kapasitas_villa }} Orang
+                                                    <option value="{{ $k->kapasitas_vila }}" {{ request('kapasitas_vila') == $k->kapasitas_vila ? 'selected' : '' }}>
+                                                        {{ $k->kapasitas_vila }} Orang
                                                     </option>
                                                 @endforeach
                                             </select>

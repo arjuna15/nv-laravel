@@ -11,53 +11,73 @@
   </head>
   <body>
     <div id='calendar'></div>
-    <?php
+    @php
       $databooking = base64_decode($datedata);
-    ?>
+    @endphp
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var parsephp = '<?php echo $databooking ?>';
-        var bookingData = JSON.parse(parsephp);
-        var eventsData = bookingData.map(function(dateString) {
-          return {
-            title: 'Pemesanan',
-            start: dateString
-          };
+      document.addEventListener('DOMContentLoaded', function () {
+        // Ambil dan parse data booking dari Laravel (format base64 encoded JSON)
+        try {
+      var decoded = atob(@json($datedata));
+      console.log("Decoded base64:", decoded);
+
+      var bookingData = JSON.parse(decoded).map(function (d) {
+        return d.substring(0, 10); // Ambil hanya YYYY-MM-DD
+      });
+
+      console.log("Parsed bookingData:", bookingData);
+    } catch (e) {
+      console.error("Gagal parsing bookingData:", e);
+    }
+
+
+    console.log("Booking data:", bookingData); // ✅ Debug, pastikan datanya muncul
+
+    var eventsData = bookingData.map(function (dateString) {
+      return {
+        title: '',
+        start: dateString,
+        allDay: true
+      };
+    });
+
+    $('#calendar').fullCalendar({
+      header: {
+        left: 'prev',
+        center: 'title',
+        right: 'next'
+      },
+      defaultDate: moment().format("YYYY-MM-DD"),
+      editable: false,
+      events: eventsData,
+      height: 'auto',
+
+      eventRender: function (event, element) {
+        element.find('.fc-title').remove();
+        element.css({
+          'background-color': 'transparent',
+          'border': 'none'
         });
+      },
+      
 
-        $('#calendar').fullCalendar({
-          header: {
-            left: 'prev',
-            center: 'title',
-            right: 'next'
-          },
-          scrollTime: '00:00', // Set the initial scroll time to midnight
-          height: 'auto', // Set the height to auto to disable vertical scrolling
-          // Add your events or event sources here
-          defaultDate: new Date(),
-          editable: false,
-          events: eventsData,
-          dayRender: function(date, cell) {
-            if (date.isBefore(moment(), 'day')) {
-              cell.css('background-color', 'transparent');
-            } else if (date > moment()) {
-              cell.css('background-color', 'transparent');
-            } else if (date.isSame(moment(), 'day')) {
-              cell.css('background-color', 'transparent');
-            }
-
-            var dateString = date.format('YYYY-MM-DD');
-            if (bookingData.indexOf(dateString) !== -1) {
-              cell.css('background-color', '#ff0000');
-            }
-          },
-          eventRender: function(event, element) {
-            element.find('.fc-title').remove();
-            element.css('border', 'none');
+      // Inilah yang akan blok cell-nya langsung
+      eventAfterAllRender: function (view) {
+        $('.fc-day').each(function () {
+          var cellDate = $(this).data('date'); // contoh: '2025-07-08'
+          if (bookingData.includes(cellDate)) {
+            $(this).css('background-color', '#ff0000');
+            $(this).css('color', 'white'); // opsional: biar angka tanggal tetap kelihatan
           }
         });
-      });
-    </script>
+      }
+    });
+  });
+  console.log("Booking data:", bookingData);
+
+</script>
+
+
     <style>
       body {
         margin: 0;
@@ -76,6 +96,20 @@
           font-size: 10px;
         }
       }
+      .fc {
+  background-color: white !important;
+}
+/* Pastikan font kalender tetap nyaman dibaca */
+.fc-day-number {
+  z-index: 10;
+  position: relative;
+}
+
+/* Smooth coloring */
+.fc-day[data-date] {
+  transition: background-color 0.3s ease;
+}
+
 
       .fc-day-grid .fc-day,
       .fc-day-grid .fc-day-top {

@@ -52,7 +52,7 @@
                                 <td>Rp {{ number_format($vila->harga_villa['jumat'] ?? 0, 0, ',', '.') }}</td>
                                 <td>Rp {{ number_format($vila->harga_villa['sabtu'] ?? 0, 0, ',', '.') }}</td>
                                 <td>
-                                    <a href="{{ route('vila.edit', $vila->vila_id) }}" class="btn btn-warning btn-sm mb-1">
+                                    <a href="{{ route('vila.edit', $vila->vila_id) }}" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
                                     <form action="{{ route('vila.destroy', $vila->vila_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus?')">

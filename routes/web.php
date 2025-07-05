@@ -71,7 +71,9 @@ Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name(
 Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
 Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
 Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
-Route::get('/calendar/{data}', [UserController::class, 'calendar'])->name('calendar.show');
+// Route::get('/calendar/{data}', [VilaController::class, 'calendar'])->name('calendar.show');
+Route::get('/calendar/{encodedData}', [VilaController::class, 'show'])->name('calendar.show');
+
 Route::get('/invoice/{id}', [VilaController::class, 'cetakInvoice'])->name('vila.invoice');
 
 

@@ -40,4 +40,19 @@ class Vila extends Model
     {
         return self::where('vila_id', $id)->first();
     }
+
+    public static function getByPriceAndDay($minPrice, $maxPrice = null, $dayRange = 1)
+    {
+        $query = self::where('status_villa', 1);
+
+        if ($dayRange == 1) {
+            $query->whereRaw('CAST(JSON_UNQUOTE(JSON_EXTRACT(price_villa, "$.minggu_kamis")) AS UNSIGNED) >= ?', [$minPrice]);
+            if ($maxPrice !== null) {
+                $query->whereRaw('CAST(JSON_UNQUOTE(JSON_EXTRACT(price_villa, "$.minggu_kamis")) AS UNSIGNED) <= ?', [$maxPrice]);
+            }
+        }
+
+        return $query->get();
+    }
+
 }

@@ -3,20 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\VillaModels;
+use App\Models\Vila;
 use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $kapasitas = DB::table('villa')
-            ->select('kapasitas_villa')
+        $kapasitas = DB::table('vilas')
+            ->select('kapasitas_vila')
             ->distinct()
-            ->orderByRaw('CAST(kapasitas_villa AS UNSIGNED) ASC')
+            ->orderByRaw('CAST(kapasitas_vila AS UNSIGNED) ASC')
             ->get();
 
         return view('landing', [
@@ -60,7 +62,7 @@ class UserController extends Controller
                 break;
         }
 
-        $dataVilla = VillaModels::getByPriceAndDay($min_price, $max_price, $day_range);
+        $dataVilla = Vila::getByPriceAndDay($min_price, $max_price, $day_range);
 
         return view('list', [
             'dataVilla' => $this->rearrangeVillas($dataVilla),
@@ -106,28 +108,54 @@ class UserController extends Controller
 
     public function detail($villaId, $villaName = null)
     {
-        $dataVilla = VillaModels::find($villaId);
+        $dataVilla = Vila::find($villaId);
 
         if (!$dataVilla) {
             abort(404);
         }
 
-        $expectedVillaName = Str::slug($dataVilla->nama_villa);
+        $expectedVillaName = Str::slug($dataVilla->nama_vila);
+
         if ($villaName !== $expectedVillaName) {
-            return redirect()->route('user.detail', ['villaId' => $villaId, 'villaName' => $expectedVillaName]);
+            return redirect()->route('user.detail', [
+                'villaId' => $villaId,
+                'villaName' => $expectedVillaName
+            ]);
         }
 
-        $reservasi = Reservasi::allUpcoming($villaId);
-        $dates = collect($reservasi)->pluck('check_in_date');
+        // Ambil reservasi via method byVilla
+        $reserv = Reservasi::byVilla($villaId)
+        ->pluck('check_in_date')
+        ->map(function ($date) {
+            return Carbon::parse($date)->toDateString();
+        })
+        ->toArray();
+        $images = is_string($dataVilla->gambar) ? json_decode($dataVilla->gambar, true) : $dataVilla->gambar;
+        $dets = is_string($dataVilla->detail) ? json_decode($dataVilla->detail, true) : $dataVilla->detail;
+        $facils = is_string($dataVilla->fasilitas_vila) ? json_decode($dataVilla->fasilitas_vila, true) : $dataVilla->fasilitas_vila;
+        $price = is_string($dataVilla->harga_villa) ? json_decode($dataVilla->harga_villa, true) : $dataVilla->harga_villa;
+
+
+        $nama_villa = $dataVilla->nama_vila;
+        $kapasitas_villa = $dataVilla->kapasitas_vila;
+        $lokasi_vila = $dataVilla->lokasi_vila;
+        $kolam_villa = $dataVilla->kolam_villa;
+        $fasilitas_tambahan_villa = $dataVilla->fasilitas_tambahan_villa;
+        // Ambil tanggal detail, jika pakai model langsung
 
         return view('detail', [
             'dataVilla' => $dataVilla,
-            'reserv' => $dates
+            'images' => $images,
+            'dets' => $dets,
+            'facils' => $facils,
+            'price' => $price,
+            'nama_villa' => $nama_villa,
+            'fasilitas_tambahan_villa' => $fasilitas_tambahan_villa,
+            'kapasitas_villa' => $kapasitas_villa,
+            'lokasi_vila' => $lokasi_vila,
+            'kolam_villa' => $kolam_villa,
+            'reserv' => $reserv
         ]);
-    }
 
-    public function calendar($datas)
-    {
-        return view('layouts.calendar', ['datedata' => $datas]);
     }
 }

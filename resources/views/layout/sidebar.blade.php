@@ -36,7 +36,7 @@
 
         <!-- Dashboard -->
         <li class="nav-item">
-          <a href="#" class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}">
+          <a href="/master" class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Dashboard</p>
           </a>
