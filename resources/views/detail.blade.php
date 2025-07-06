@@ -1,5 +1,57 @@
 @extends('layouts.app')
 @section('title', 'Detail ' . $nama_villa)
+@push('styles')
+    <style>
+        .legend-box {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 3px;
+            vertical-align: middle;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .legend-box.available {
+            background-color: #fff;
+        }
+
+        .legend-box.not-available {
+            background-color: #222;
+            border: none;
+        }
+
+        .calendar_title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+
+        .calendar_title button {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar_title button:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .calendar_title span {
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+@endpush
 @section('content')
 <div id="page-wrap">
     <section class="section-room-detail bg-white">
@@ -202,21 +254,14 @@
                             </div>
 
                             {{-- CALENDAR --}}
-                            <div class="tab-pane fade" id="calendar">
-                                <div class="room-detail_calendar-wrap row">
-                                    <div class="col-sm-12 text-center">
-                                        <iframe class="disable-click scaled-iframe background-div1" style="width: 300px; height: 315px;" frameborder="0" 
-                                            src="{{ url('User/calendar/' . base64_encode(json_encode($reserv))) }}">
-                                        </iframe>
-                                    </div>
-
-                                    <div class="calendar_status text-center col-sm-12">
-                                        <span>Belum Terisi</span>
-                                        <span class="not-available">Terisi</span>
-                                    </div>
+                            <div class="tab-pane fade show active" id="calendar">
+                                <div id="calendarWrapper" class="row"></div>
+                                
+                                <div class="calendar_status text-center col-sm-12 mt-3" style="margin-top:50px">
+                                    <span><span class="legend-box available"></span> Belum Terisi</span>
+                                    <span><span class="legend-box not-available"></span> Terisi</span>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -322,34 +367,139 @@
         </div>
     </section>
 </div>
-
+@endsection
+@push('scripts')
 <script>
-    document.getElementById("bookNowBtn").addEventListener("click", function () {
-        var checkin = document.getElementById("checkin").value;
-        var checkout = document.getElementById("checkout").value;
-        var guests = document.getElementById("guests").value;
-        var villaName = '{{ $nama_villa }}';
+    window.bookedDates = @json($reserv);
+</script>
+<script src="{{ asset('assets/js/scripts.js') }}?v={{ time() }}"></script>
 
-        if (checkin === "" || checkout === "" || guests === "") {
-            alert("Mohon lengkapi data sebelum melanjutkan!");
-            return;
+    <script>
+        // Ambil data booked dari PHP dan parse ke JS
+        const bookedDates = @json($reserv);
+        let currentOffset = 0;
+
+        function renderCalendar() {
+            const calendarWrapper = document.getElementById("calendarWrapper");
+            calendarWrapper.innerHTML = "";
+
+            for (let m = 0; m < 2; m++) {
+                const offset = currentOffset + m;
+                const today = new Date();
+                const targetDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+                const year = targetDate.getFullYear();
+                const month = targetDate.getMonth();
+                const monthName = targetDate.toLocaleString('default', { month: 'long' }).toUpperCase();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayOfWeek = new Date(year, month, 1).getDay();
+
+                // Create HTML block
+                let html = `
+                <div class="col-sm-6">
+                    <div class="calendar_custom">
+                        <div class="calendar_title">
+                            ${m === 0 ? `<button onclick="changeMonth(-1)">←</button>` : `<span></span>`}
+                            <span>${monthName} ${year}</span>
+                            ${m === 1 ? `<button onclick="changeMonth(1)">→</button>` : `<span></span>`}
+                        </div>
+                        <table class="calendar_tabel">
+                            <thead>
+                                <tr>
+                                    <th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                let day = 1;
+                for (let i = 0; i < 6; i++) {
+                    html += "<tr>";
+                    for (let j = 0; j < 7; j++) {
+                        if (i === 0 && j < firstDayOfWeek) {
+                            html += "<td></td>";
+                        } else if (day > daysInMonth) {
+                            html += "<td></td>";
+                        } else {
+                            const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                            const booked = bookedDates.includes(fullDate) ? 'not-available' : '';
+                            html += `<td class="${booked}"><a href="#"><small>${day}</small></a></td>`;
+                            day++;
+                        }
+                    }
+                    html += "</tr>";
+                    if (day > daysInMonth) break;
+                }
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                `;
+                calendarWrapper.innerHTML += html;
+            }
         }
 
-        var checkinParts = checkin.split("/");
-        var formattedCheckin = checkinParts[1] + "/" + checkinParts[0] + "/" + checkinParts[2];
+        function changeMonth(diff) {
+            currentOffset += diff;
+            renderCalendar();
+        }
+        console.log(bookedDates);  // Cek apakah bookedDates berisi data yang benar
 
-        var checkoutParts = checkout.split("/");
-        var formattedCheckout = checkoutParts[1] + "/" + checkoutParts[0] + "/" + checkoutParts[2];
 
-        var message = "Halo kak, saya ingin pesan villa.\n\n";
-        message += "Nama Villa: " + villaName + "\n";
-        message += "Check-in: " + formattedCheckin + "\n";
-        message += "Check-out: " + formattedCheckout + "\n";
-        message += "Jumlah tamu: " + guests + "\n\n";
-        message += "Terima kasih";
+        renderCalendar(); // Render pertama kali
+        </script>
+            
+        <script>
+        document.getElementById("bookNowBtn").addEventListener("click", function() {
+            var checkin = document.getElementById("checkin").value;
+            var guests = document.getElementById("guests").value;
+            var villaName = @json($dataVilla->nama_villa);
 
-        var whatsappLink = "https://wa.me/62895360610100?text=" + encodeURIComponent(message);
-        window.open(whatsappLink, '_blank');
-    });
-</script>
-@endsection
+            // Validasi input
+            if (checkin === "" || guests === "") {
+                alert("Mohon lengkapi data sebelum melanjutkan!");
+                return;
+            }
+
+            // Parse tanggal dari datepicker dengan format mm/dd/yy
+            var checkinDate = $.datepicker.parseDate("mm/dd/yy", checkin);
+
+            // Tambah 1 hari untuk checkout
+            var checkoutDate = new Date(checkinDate);
+            checkoutDate.setDate(checkinDate.getDate() + 1);
+
+            // Format ulang tanggal ke lokal Indonesia
+            // Format ulang tanggal ke "2 Juli 2025"
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            var formattedCheckin = checkinDate.toLocaleDateString('id-ID', options);
+            var formattedCheckout = checkoutDate.toLocaleDateString('id-ID', options);
+
+
+            var message = "Halo kak, saya ingin pesan villa.\n\n";
+            message += "Nama Villa: " + villaName + "\n";
+            message += "Check-in: " + formattedCheckin + "\n";
+            message += "Check-out: " + formattedCheckout + "\n";
+            message += "Jumlah tamu: " + guests + "\n\n";
+            message += "Terima kasih";
+
+            var whatsappLink = "https://wa.me/6289607709270?text=" + encodeURIComponent(message);
+            window.open(whatsappLink, '_blank');
+        });
+        </script>
+
+                                        
+        <!-- Optional: Smooth scroll maintain after reload (optional jika pakai anchor saja sudah cukup) -->
+        <script>
+        window.addEventListener("beforeunload", function () {
+            localStorage.setItem("scrollY", window.scrollY);
+        });
+        window.addEventListener("load", function () {
+            const scrollY = localStorage.getItem("scrollY");
+            if (scrollY !== null) {
+                window.scrollTo(0, parseInt(scrollY));
+                localStorage.removeItem("scrollY");
+            }
+        });
+        </script>
+@endpush

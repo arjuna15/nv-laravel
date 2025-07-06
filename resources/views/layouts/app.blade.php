@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    @stack('styles')
 
     <!-- Meta SEO -->
     <meta name="description" content="Ngevillayuk">
@@ -74,5 +75,6 @@
     <script src="{{ asset('assets/js/lib/jquery.form.min.js') }}"></script>
     <script src="{{ asset('assets/js/lib/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

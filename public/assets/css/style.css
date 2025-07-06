@@ -821,7 +821,7 @@ blockquote p:after{
 }
 .ui-datepicker .ui-state-default,.ui-datepicker .ui-widget-content .ui-state-default,.ui-datepicker .ui-widget-header .ui-state-default{
     background:none;
-    color:#333;
+    color:#c9c9c9;
     border:1px solid #f1f1f1;
     font-size:12px;
     height:33px;
@@ -5448,7 +5448,7 @@ blockquote p:after{
     margin-right:10px
 }
 .room-detail_calendar-wrap .calendar_status span.not-available:before{
-    background-color:#ff0000
+    background-color:#232323
 }
 .room-detail_compare{
     margin-top:20px;

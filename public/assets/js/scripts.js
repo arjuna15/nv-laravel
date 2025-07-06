@@ -24,38 +24,41 @@
         }
     }
 
-    /* Datepicker */
+  $(document).ready(function () {
     DatePicker();
+    });
+
     function DatePicker() {
-        $(".awe-calendar:not(.from, .to)").datepicker({
+        const hasBookedDates = typeof window.bookedDates !== "undefined" && Array.isArray(window.bookedDates);
+
+        $(".awe-calendar").datepicker({
             prevText: '<i class="lotus-icon-left-arrow"></i>',
             nextText: '<i class="lotus-icon-right-arrow"></i>',
-            buttonImageOnly: false
+            buttonImageOnly: false,
+            minDate: 0,
+            beforeShowDay: hasBookedDates ? function(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const formatted = `${year}-${month}-${day}`;
+
+                console.log("Check:", formatted);
+
+                if (window.bookedDates.includes(formatted)) {
+                    return [false, "", "Tanggal sudah terisi"];
+                }
+                return [true, "", ""];
+            } : null
         });
 
-        /* Datepicker from - to */
-        $(".awe-calendar.from").datepicker({
-            prevText: '<i class="lotus-icon-left-arrow"></i>',
-            nextText: '<i class="lotus-icon-right-arrow"></i>',
-            buttonImageOnly: false,
-            minDate: 0,
-            onClose: function (selectedDate) {
-                var newDate = new Date(selectedDate),
-                    tomorrow = new Date(newDate.getTime() + 24 * 60 * 60 * 1000),
-                    nextDate = (tomorrow.getMonth() + 1) + '/' + tomorrow.getDate() + '/' + tomorrow.getFullYear();
-                $(".awe-calendar.to").datepicker("option", "minDate", nextDate).focus();
-            }
-        });
-        $(".awe-calendar.to").datepicker({
-            prevText: '<i class="lotus-icon-left-arrow"></i>',
-            nextText: '<i class="lotus-icon-right-arrow"></i>',
-            buttonImageOnly: false,
-            minDate: 0,
-            onClose: function (selectedDate) {
-                //$(".awe-calendar.from").datepicker( "option", "maxDate", selectedDate );
-            }
+        $(".awe-calendar.from").datepicker("option", "onClose", function (selectedDate) {
+            var newDate = new Date(selectedDate);
+            newDate.setDate(newDate.getDate() + 1);
+            $(".awe-calendar.to").datepicker("option", "minDate", newDate).focus();
         });
     }
+
+
 
     /*Accordion*/
     Accordion();
