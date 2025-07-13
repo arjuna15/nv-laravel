@@ -6,6 +6,22 @@
         <div class="card-header">
             <h3 class="card-title">Form Tambah / Edit Vila</h3>
         </div>
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <strong>Ups! Ada kesalahan input:</strong>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+        @php
+            // Default jika $vila tidak ada (mode tambah)
+            $detail = isset($vila) ? (is_array($vila->detail) ? $vila->detail : json_decode($vila->detail, true)) : [];
+            $fasilitas = isset($vila) ? (is_array($vila->fasilitas_vila) ? $vila->fasilitas_vila : json_decode($vila->fasilitas_vila, true)) : [];
+            $harga = isset($vila) ? (is_array($vila->harga_villa) ? $vila->harga_villa : json_decode($vila->harga_villa, true)) : [];
+        @endphp
 
         <form action="{{ isset($vila) ? route('vila.update', $vila->vila_id) : route('vila.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -32,22 +48,22 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label>Jumlah Kamar</label>
-                        <input type="number" class="form-control" name="detail[jumlah_kamar]" value="{{ old('detail.jumlah_kamar', $vila->detail['jumlah_kamar'] ?? '') }}">
+                        <input type="number" class="form-control" name="detail[jumlah_kamar]" value="{{ old('detail.jumlah_kamar', $detail['jumlah_kamar'] ?? '') }}">
                     </div>
                     <div class="col-md-6">
                         <label>Jumlah Tempat Tidur</label>
-                        <input type="number" class="form-control" name="detail[jumlah_tempat_tidur]" value="{{ old('detail.jumlah_tempat_tidur', $vila->detail['jumlah_tempat_tidur'] ?? '') }}">
+                        <input type="number" class="form-control" name="detail[jumlah_tempat_tidur]" value="{{ old('detail.jumlah_tempat_tidur', $detail['jumlah_tempat_tidur'] ?? '') }}">
                     </div>
                 </div>
 
                 <div class="row mt-2">
                     <div class="col-md-6">
                         <label>Jumlah Kamar Mandi</label>
-                        <input type="number" class="form-control" name="detail[jumlah_kamar_mandi]" value="{{ old('detail.jumlah_kamar_mandi', $vila->detail['jumlah_kamar_mandi'] ?? '') }}">
+                        <input type="number" class="form-control" name="detail[jumlah_kamar_mandi]" value="{{ old('detail.jumlah_kamar_mandi', $detail['jumlah_kamar_mandi'] ?? '') }}">
                     </div>
                     <div class="col-md-6">
                         <label>Jumlah Parkir Mobil</label>
-                        <input type="number" class="form-control" name="detail[jumlah_parkir]" value="{{ old('detail.jumlah_parkir', $vila->detail['jumlah_parkir'] ?? '') }}">
+                        <input type="number" class="form-control" name="detail[jumlah_parkir]" value="{{ old('detail.jumlah_parkir', $detail['jumlah_parkir'] ?? '') }}">
                     </div>
                 </div>
 
@@ -65,23 +81,21 @@
                 <div class="form-group">
                     <label>Fasilitas Vila</label>
                     <div id="fasilitas-container">
-                        @if(isset($vila) && $vila->fasilitas_vila)
-                            @foreach($vila->fasilitas_vila as $fasilitas)
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" name="fasilitas_vila[]" value="{{ $fasilitas }}">
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
-                                    </div>
+                        @forelse($fasilitas as $f)
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="fasilitas_vila[]" value="{{ $f }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
                                 </div>
-                            @endforeach
-                        @else
+                            </div>
+                        @empty
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" name="fasilitas_vila[]" placeholder="Masukkan fasilitas vila">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
                                 </div>
                             </div>
-                        @endif
+                        @endforelse
                     </div>
                     <button type="button" id="add-fasilitas" class="btn btn-sm btn-primary mt-2">Tambah Fasilitas</button>
                 </div>
@@ -89,29 +103,29 @@
                 {{-- Harga --}}
                 <div class="form-group">
                     <label>Harga Minggu - Kamis</label>
-                    <input type="number" class="form-control" name="harga_villa[minggu_kamis]" value="{{ old('harga_villa.minggu_kamis', $vila->harga_villa['minggu_kamis'] ?? '') }}" required>
+                    <input type="number" class="form-control" name="harga_villa[minggu_kamis]" value="{{ old('harga_villa.minggu_kamis', $harga['minggu_kamis'] ?? '') }}" required>
                 </div>
                 <div class="form-group">
                     <label>Harga Jumat</label>
-                    <input type="number" class="form-control" name="harga_villa[jumat]" value="{{ old('harga_villa.jumat', $vila->harga_villa['jumat'] ?? '') }}" required>
+                    <input type="number" class="form-control" name="harga_villa[jumat]" value="{{ old('harga_villa.jumat', $harga['jumat'] ?? '') }}" required>
                 </div>
                 <div class="form-group">
                     <label>Harga Sabtu</label>
-                    <input type="number" class="form-control" name="harga_villa[sabtu]" value="{{ old('harga_villa.sabtu', $vila->harga_villa['sabtu'] ?? '') }}" required>
+                    <input type="number" class="form-control" name="harga_villa[sabtu]" value="{{ old('harga_villa.sabtu', $harga['sabtu'] ?? '') }}" required>
                 </div>
 
                 {{-- Upload Gambar --}}
                 <div class="form-group">
                     <label>Upload Gambar (Minimal 5, Maksimal 50)</label>
                     <input type="file" class="form-control" name="gambar[]" multiple>
-                    @if (isset($vila) && is_array($vila->gambar))
+                    @if(isset($vila) && is_array($vila->gambar))
                         <div class="mt-3 row">
                             @foreach ($vila->gambar as $gambar)
                                 <div class="col-md-3 mb-2">
-                                    <img src="{{ asset('storage/' . $gambar) }}" width="100" class="img-thumbnail mb-1">
+                                    <img src="{{ asset('images/' . ($gambar['image'] ?? $gambar)) }}" width="100" class="img-thumbnail mb-1">
                                     <div>
                                         <label>
-                                            <input type="checkbox" name="hapus_gambar[]" value="{{ $gambar }}"> Hapus
+                                            <input type="checkbox" name="hapus_gambar[]" value="{{ $gambar['image'] ?? $gambar }}"> Hapus
                                         </label>
                                     </div>
                                 </div>
@@ -127,6 +141,7 @@
                 </button>
             </div>
         </form>
+
     </div>
 </div>
 @endsection

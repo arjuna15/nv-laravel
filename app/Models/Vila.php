@@ -22,6 +22,7 @@ class Vila extends Model
         'fasilitas_vila',
         'harga_villa',
         'gambar',
+        'status_villa'
     ];
 
     protected $casts = [
@@ -53,6 +54,30 @@ class Vila extends Model
         }
 
         return $query->get();
+    }
+
+    public static function getAvailVilla($checkInDate, $checkOutDate, $kapasitasVilla)
+    {
+        return Vila::whereNotIn('vila_id', function ($query) use ($checkInDate, $checkOutDate) {
+                $query->select('vila_id')
+                    ->from('reservasi')
+                    ->where('check_out_date', '>', $checkInDate)
+                    ->where('check_in_date', '<', $checkOutDate);
+            })
+            ->orWhere('kapasitas_vila', $kapasitasVilla)
+            ->get();
+    }
+
+    public static function getAvailVillaByKapasitas($checkInDate, $checkOutDate, $kapasitasVilla)
+    {
+        return Vila::whereNotIn('vila_id', function ($query) use ($checkInDate, $checkOutDate) {
+                $query->select('vila_id')
+                    ->from('reservasi')
+                    ->where('check_out_date', '>', $checkInDate)
+                    ->where('check_in_date', '<', $checkOutDate);
+            })
+            ->where('kapasitas_vila', $kapasitasVilla)
+            ->get();
     }
 
 }

@@ -81,8 +81,8 @@
                                             <input type="text" name="check_in_date" class="awe-calendar from" placeholder="Tanggal Checkin" value="{{ request('check_in_date') }}">
                                             <input type="text" name="check_out_date" class="awe-calendar to" placeholder="Tanggal Checkout" value="{{ request('check_out_date') }}">
 
-                                            <select class="awe-select" name="kapasitas_villa">
-                                                <option selected disabled>Kapasitas</option>
+                                            <select class="awe-select" name="kapasitas_vila">
+                                                <option selected>Kapasitas</option>
                                                 <option value="10">10</option>
                                                 <option value="15">15</option>
                                                 <option value="20">20</option>
@@ -119,7 +119,15 @@
                                             <h2>{{ $villa->nama_villa }}</h2>
                                             <div class="img">
                                                 <a href="{{ url('detail/' . $villa->vila_id . '/' . Str::slug($villa->nama_villa)) }}">
-                                                    <img src="{{ asset('images/' . $images[0]['image']) }}" alt="">
+                                                    @php
+                                                        $images = is_string($villa->gambar) ? json_decode($villa->gambar, true) : $villa->gambar;
+                                                    @endphp
+
+                                                    @if(isset($images[0]['image']))
+                                                        <img src="{{ asset('images/' . $images[0]['image']) }}" alt="">
+                                                    @else
+                                                        <img src="{{ asset('images/default.jpg') }}" alt="Gambar tidak tersedia">
+                                                    @endif
                                                 </a>
                                             </div>
                                             <div class="desc">
@@ -133,13 +141,14 @@
                                                 <p>Lokasi: {{ $villa->deskripsi_villa }}</p>
                                             </div>
                                             <div class="bot">
-                                                <span class="price">Mulai dari <span class="amout">{{ number_format($price['minggu_kamis'], 2, ',', '.') }}</span> /malam</span>
+                                                <span class="price">Mulai dari <span class="amout">{{ number_format($price['minggu_kamis'], 0, ',', '.') }}</span> /malam</span>
                                                 <a href="{{ url('detail/' . $villa->vila_id . '/' . Str::slug($villa->nama_villa)) }}" class="awe-btn awe-btn-13">Selengkapnya</a>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
                                     <p>Villa tidak ditemukan.</p>
+                                    
                                 @endforelse
                             </div>
                         </div>

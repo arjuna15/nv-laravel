@@ -1,0 +1,32 @@
+[90m= [39m[34;4mApp\Models\Vila[39;24m {#5137
+    [34mvila_id[39m: [35m14[39m,
+    [34mnama_vila[39m: "[32mVilla Kamela[39m",
+    [34mlokasi_vila[39m: "[32mPasir Muncang, Alternatif Cisarua[39m",
+    [34mkapasitas_vila[39m: [35m15[39m,
+    [34mdetail[39m: "[32m"{\"jumlah_kamar\":\"2\",\"jumlah_tempat_tidur\":\"4\",\"jumlah_kamar_mandi\":\"1\",\"jumlah_parkir\":\"2\"}"[39m",
+    [34mkedalaman_luas_kolam[39m: "[32m10 x 5 M, 0,8 - 1,5 M[39m",
+    [34mfasilitas_tambahan_vila[39m: "[32mFree 1 Extra Bed[39m",
+    [34mfasilitas_vila[39m: "[32m"[\"Karaoke\"]"[39m",
+    [34mharga_villa[39m: "[32m"{\"minggu_kamis\":\"900000\",\"jumat\":\"1500000\",\"sabtu\":\"2500000\"}"[39m",
+    [34mgambar[39m: "[32m"[{\"image\":\"r7_6870c59fa05ec.webp\"}]"[39m",
+    [34mstatus_villa[39m: [35m1[39m,
+    [34mcreated_at[39m: "[32m2025-07-11 08:04:48[39m",
+    [34mupdated_at[39m: "[32m2025-07-11 08:04:48[39m",
+  }
+
+[90m= [39m[34;4mApp\Models\Vila[39;24m {#5156
+    [34mvila_id[39m: [35m14[39m,
+    [34mnama_vila[39m: "[32mVilla Kamela[39m",
+    [34mlokasi_vila[39m: "[32mPasir Muncang, Alternatif Cisarua[39m",
+    [34mkapasitas_vila[39m: [35m15[39m,
+    [34mdetail[39m: "[32m"{\"jumlah_kamar\":\"2\",\"jumlah_tempat_tidur\":\"4\",\"jumlah_kamar_mandi\":\"1\",\"jumlah_parkir\":\"2\"}"[39m",
+    [34mkedalaman_luas_kolam[39m: "[32m10 x 5 M, 0,8 - 1,5 M[39m",
+    [34mfasilitas_tambahan_vila[39m: "[32mFree 1 Extra Bed[39m",
+    [34mfasilitas_vila[39m: "[32m"[\"Karaoke\"]"[39m",
+    [34mharga_villa[39m: "[32m"{\"minggu_kamis\":\"900000\",\"jumat\":\"1500000\",\"sabtu\":\"2500000\"}"[39m",
+    [34mgambar[39m: "[32m"[{\"image\":\"r7_6870c59fa05ec.webp\"}]"[39m",
+    [34mstatus_villa[39m: [35m1[39m,
+    [34mcreated_at[39m: "[32m2025-07-11 08:04:48[39m",
+    [34mupdated_at[39m: "[32m2025-07-11 08:04:48[39m",
+  }
+

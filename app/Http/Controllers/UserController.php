@@ -90,19 +90,21 @@ class UserController extends Controller
 
     public function filterVillas(Request $request)
     {
-        $check_in_date = date('Y-m-d', strtotime($request->input('check_in_date')));
-        $check_out_date = date('Y-m-d', strtotime($request->input('check_out_date')));
-        $kapasitas = $request->input('kapasitas_villa');
+        $checkInDate = Carbon::createFromFormat('m/d/Y', $request->check_in_date)->format('Y-m-d');
+        $checkOutDate = Carbon::createFromFormat('m/d/Y', $request->check_out_date)->format('Y-m-d');
 
-        if ($kapasitas === 'Kapasitas') {
-            $dataVilla = Villa::getAvailable($check_in_date, $check_out_date);
+        $kapasitas_villa = $request->input('kapasitas_vila');
+        
+
+        if ($kapasitas_villa === 'Kapasitas') {
+            $dataVilla = Vila::getAvailVilla($checkInDate, $checkOutDate, $kapasitas_villa);
         } else {
-            $dataVilla = Villa::getAvailableByKapasitas($check_in_date, $check_out_date, $kapasitas);
+            $dataVilla = Vila::getAvailVillaByKapasitas($checkInDate, $checkOutDate, $kapasitas_villa);
         }
+        
 
-        return view('layouts.main', [
-            'dataVilla' => $this->rearrangeVillas(collect($dataVilla)),
-            'content' => 'list'
+        return view('list', [
+            'dataVilla' => $this->rearrangeVillas($dataVilla),
         ]);
     }
 

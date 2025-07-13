@@ -48,9 +48,12 @@
                                 <td>{{ $vila->vila_id }}</td>
                                 <td>{{ $vila->nama_vila }}</td>
                                 <td>{{ $vila->lokasi_vila }}</td>
-                                <td>Rp {{ number_format($vila->harga_villa['minggu_kamis'] ?? 0, 0, ',', '.') }}</td>
-                                <td>Rp {{ number_format($vila->harga_villa['jumat'] ?? 0, 0, ',', '.') }}</td>
-                                <td>Rp {{ number_format($vila->harga_villa['sabtu'] ?? 0, 0, ',', '.') }}</td>
+                               @php
+                                    $harga = is_array($vila->harga_villa) ? $vila->harga_villa : json_decode($vila->harga_villa, true);
+                                @endphp
+                                <td>Rp {{ number_format($harga['minggu_kamis'] ?? 0, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($harga['jumat'] ?? 0, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($harga['sabtu'] ?? 0, 0, ',', '.') }}</td>
                                 <td>
                                     <a href="{{ route('vila.edit', $vila->vila_id) }}" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i> Edit
@@ -64,6 +67,7 @@
                                     </form>
                                 </td>
                             </tr>
+
                         @endforeach
                     </tbody>
                 </table>

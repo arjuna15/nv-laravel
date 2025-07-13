@@ -7,6 +7,10 @@ use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as ImageManager;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
+
 
 class VilaController extends Controller
 {
@@ -34,50 +38,67 @@ class VilaController extends Controller
         $request->validate([
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
-            'kapasitas_vila' => 'required',
-            'detail' => 'required',
-            'harga_villa' => 'required',
-            'gambar' => 'required|array|min:5|max:50',
-            'gambar.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+            'kapasitas_vila' => 'required|integer',
+
+            'detail.jumlah_kamar' => 'required|integer',
+            'detail.jumlah_tempat_tidur' => 'required|integer',
+            'detail.jumlah_kamar_mandi' => 'required|integer',
+            'detail.jumlah_parkir' => 'required|integer',
+
+            'harga_villa.minggu_kamis' => 'required|numeric',
+            'harga_villa.jumat' => 'required|numeric',
+            'harga_villa.sabtu' => 'required|numeric',
+
+            'gambar' => 'required|array|min:1',
+            'gambar.*' => 'image|mimes:jpg,jpeg,png,webp|max:50240',
         ]);
+
 
         $gambar = [];
 
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
-                // Buat nama unik
-                $fileName = time() . '_' . uniqid() . '.jpg';
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $originalName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $originalName); // bersihkan nama
+                $fileName = $originalName . '_' . uniqid() . '.webp'; // pastikan unik
+
                 $savePath = public_path('images/' . $fileName);
-
                 try {
-                    // Konversi dan simpan gambar dengan quality 85%
-                    ImageManager::make($file->getRealPath())
-                        ->encode('jpg', 85)
-                        ->save($savePath);
+                    $image = ImageManager::make($file->getRealPath());
 
-                    // Simpan dalam bentuk array of object
+                    // Resize kalau dimensi terlalu besar (misal > 4000px)
+                    if ($image->width() > 4000 || $image->height() > 4000) {
+                        $image->resize(1920, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                    }
+
+                    $image->encode('webp', 85)->save($savePath);
                     $gambar[] = ['image' => $fileName];
                 } catch (\Exception $e) {
-                    \Log::error("Gagal menyimpan gambar ($fileName): " . $e->getMessage());
+                    \Log::error("Gagal convert: " . $e->getMessage());
+                    return back()->withErrors(['gambar' => 'Gagal memproses gambar.'])->withInput();
                 }
+
             }
         }
 
-        // Simpan ke DB
         Vila::create([
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
             'kapasitas_vila' => $request->kapasitas_vila,
-            'detail' => $request->detail,
+            'detail' => $request->input('detail'),
             'kedalaman_luas_kolam' => $request->kedalaman_luas_kolam,
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
-            'fasilitas_vila' => $request->fasilitas_vila,
-            'harga_villa' => $request->harga_villa,
-            'gambar' => json_encode($gambar), // penting: encode jadi JSON string
+            'fasilitas_vila' => $request->input('fasilitas_vila'),
+            'harga_villa' => $request->input('harga_villa'),
+            'gambar' => $gambar, // sudah array
+            'status_villa' => 1,
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil disimpan.');
     }
+
 
 
     public function edit($vila_id)
@@ -96,34 +117,52 @@ class VilaController extends Controller
             'kapasitas_vila' => 'required',
             'detail' => 'required',
             'harga_villa' => 'required',
-            'gambar.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+            'gambar.*' => 'image|mimes:jpg,jpeg,png|max:50240',
         ]);
 
-        $gambar = $vila->gambar ?? [];
+        $gambarLama = json_decode($vila->gambar, true) ?? [];
 
-        // Hapus gambar lama jika dipilih
+        // Hapus gambar yang ditandai
         if ($request->hapus_gambar) {
-            foreach ($request->hapus_gambar as $gbr) {
-                if (Storage::disk('public')->exists($gbr)) {
-                    Storage::disk('public')->delete($gbr);
+            foreach ($request->hapus_gambar as $fileName) {
+                $path = public_path('images/' . $fileName);
+                if (file_exists($path)) {
+                    unlink($path);
                 }
-                if (($key = array_search($gbr, $gambar)) !== false) {
-                    unset($gambar[$key]);
-                }
+
+                // Hapus dari array lama
+                $gambarLama = array_filter($gambarLama, function ($g) use ($fileName) {
+                    return $g['image'] !== $fileName;
+                });
             }
         }
 
-        // Upload gambar baru jika ada
+        // Upload gambar baru
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
-                $gambar[] = $file->store('gambar_vila', 'public');
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $ext = $file->getClientOriginalExtension();
+                $fileName = Str::slug($originalName) . '-' . uniqid() . '.' . $ext;
+
+                $savePath = public_path('images/' . $fileName);
+
+                try {
+                    ImageManager::make($file->getRealPath())
+                        ->encode('jpg', 85)
+                        ->save($savePath);
+
+                    $gambarLama[] = ['image' => $fileName];
+                } catch (\Exception $e) {
+                    \Log::error("Gagal menyimpan gambar ($fileName): " . $e->getMessage());
+                }
             }
         }
 
-        if (count($gambar) < 5) {
+        if (count($gambarLama) < 5) {
             return redirect()->back()->with('error', 'Minimal harus ada 5 gambar pada vila.');
         }
 
+        // Update vila
         $vila->update([
             'nama_vila' => $request->nama_vila,
             'lokasi_vila' => $request->lokasi_vila,
@@ -133,11 +172,12 @@ class VilaController extends Controller
             'fasilitas_tambahan_vila' => $request->fasilitas_tambahan_vila,
             'fasilitas_vila' => $request->fasilitas_vila,
             'harga_villa' => $request->harga_villa,
-            'gambar' => array_values($gambar), // simpan array langsung
+            'gambar' => json_encode(array_values($gambarLama)),
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil diupdate.');
     }
+
 
     public function destroy($vila_id)
     {
@@ -162,26 +202,141 @@ class VilaController extends Controller
     {
         $datas = Vila::getAll();
         $vgadata = [];
+        $today = Carbon::today()->toDateString();
 
         foreach ($datas as $datad) {
-            $date = [];
+            // Booking total (untuk jumlah booking)
+            $allBooking = Reservasi::where('vila_id', $datad->vila_id)->get();
 
-            $reservasi = Reservasi::byVilla($datad->vila_id);
+            // Booking hari ini saja (untuk ditampilkan di bawah)
+            $todayBooking = Reservasi::where('vila_id', $datad->vila_id)
+                ->whereDate('created_at', $today)
+                ->get();
 
-            foreach ($reservasi as $reserv) {
-                $date[] = $reserv->check_in_date;
+            // Untuk ditampilkan di bagian bawah halaman (booking hari ini)
+            $todayFormatted = [];
+            foreach ($todayBooking as $reserv) {
+                $todayFormatted[] = [
+                    'no' => $reserv->no,
+                    'nama_tamu' => $reserv->nama_tamu,
+                    'no_hp' => $reserv->no_hp,
+                    'check_in' => $reserv->check_in_date,
+                    'check_out' => $reserv->check_out_date,
+                    'total' => $reserv->total,
+                    'uang_masuk' => $reserv->uang_masuk,
+                    'sisa' => $reserv->sisa,
+                    'pelunasan' => $reserv->pelunasan,
+                    'catatan' => $reserv->catatan,
+                    'status' => $reserv->status,
+                ];
             }
+
+            // Ambil semua reservasi yang belum lunas
+            $unpaid = Reservasi::where('vila_id', $datad->vila_id)
+                ->whereIn('status', ['Belum Lunas', 'Cicil'])
+                ->whereDate('pelunasan', '<=', $today)
+                ->orderBy('pelunasan', 'asc')
+                ->get();
+                
+            foreach ($unpaid as $reserv) {
+                $unpaidFormatted[] = [
+                    'id' => $reserv->id, // 🔥 TAMBAHKAN INI
+                    'no' => $reserv->no,
+                    'nama_tamu' => $reserv->nama_tamu,
+                    'no_hp' => $reserv->no_hp,
+                    'check_in' => $reserv->check_in_date,
+                    'check_out' => $reserv->check_out_date,
+                    'total' => $reserv->total,
+                    'uang_masuk' => $reserv->uang_masuk,
+                    'sisa' => $reserv->sisa,
+                    'pelunasan' => $reserv->pelunasan,
+                    'catatan' => $reserv->catatan,
+                    'status' => $reserv->status,
+                ];
+            }
+
 
             $vgadata[] = [
                 "vila_id" => $datad->vila_id,
                 "nama_vila" => $datad->nama_vila,
-                "jumlah_reserv" => $date
+                "total_booking" => $allBooking->count(),  // 🔹 jumlah total booking
+                "today_bookings" => $todayFormatted,       // 🔹 hanya yang dibuat hari ini
+                "unpaid_pelunasan" => $unpaidFormatted     // 🔹 semua yang belum lunas
             ];
         }
-        return view('vila.datakalender', [
-            'villa' => $vgadata,
-        ]);
+
+        return view('vila.datakalender', ['villa' => $vgadata]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:Belum Lunas,Lunas,Cicil'
+        ]);
+
+        $reservasi = Reservasi::findOrFail($id);
+
+        // Jika diubah menjadi Lunas, update uang_masuk & sisa
+        if ($request->status === 'Lunas') {
+            $reservasi->uang_masuk = $reservasi->total;
+            $reservasi->sisa = 0;
+        }
+
+        $reservasi->status = $request->status;
+        $reservasi->save();
+
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
+    }
+
+    public function cicil(Request $request, $id)
+    {
+        $request->validate([
+            'jumlah' => 'required|numeric|min:1'
+        ]);
+
+        $reservasi = Reservasi::findOrFail($id);
+        $jumlah = $request->jumlah;
+
+        // Tambah ke uang_masuk
+        $uangMasukBaru = (int)$reservasi->uang_masuk + $jumlah;
+        $sisaBaru = (int)$reservasi->total - $uangMasukBaru;
+
+        $status = 'Belum Lunas';
+        if ($sisaBaru <= 0) {
+            $status = 'Lunas';
+            $sisaBaru = 0;
+        } elseif ($uangMasukBaru > 0 && $uangMasukBaru < $reservasi->total) {
+            $status = 'Cicil';
+        }
+
+        $reservasi->update([
+            'uang_masuk' => $uangMasukBaru,
+            'sisa' => $sisaBaru,
+            'status' => $status,
+        ]);
+
+        return back()->with('success', 'Cicilan berhasil ditambahkan.');
+    }
+
+    public function sendToGoogleForm($reservasi)
+    {
+        $url = 'https://docs.google.com/forms/d/e/1FAIpQLSdubZ-jDxzJ-Oc4pRPU_lf5U1ZaGHHboL3XdJdOBwyfNk0zTQ/formResponse';
+
+        $data = [
+            'entry.1680845292' => $reservasi->no,
+            'entry.339184750' => $reservasi->nama_tamu,
+            'entry.1066245962' => $reservasi->check_in_date,
+            'entry.783451766' => $reservasi->total,
+            'entry.109554030' => $reservasi->uang_masuk,
+            'entry.715474057' => $reservasi->sisa,
+            'entry.1925620616' => $reservasi->pelunasan,
+            'entry.1011407538' => $reservasi->catatan,
+            'entry.342183189' => $reservasi->no_hp,
+        ];
+
+        Http::asForm()->post($url, $data);
+    }
+
 
     public function tambahTanggal($id)
     {
@@ -194,22 +349,20 @@ class VilaController extends Controller
 
     public function storeTanggal(Request $request)
     {
-        $request->validate([
-            'vila_id' => 'required|exists:vilas,vila_id',
-            'nama_tamu' => 'required',
-            'check_in_date' => 'required|date',
-            'check_out_date' => 'required|date|after_or_equal:check_in_date',
+        $data = $request->only([
+            'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
+            'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
         ]);
 
-        Reservasi::addCalender(
-            $request->vila_id,
-            $request->nama_tamu,
-            $request->check_in_date,
-            $request->check_out_date
-        );
+        $reservasi = Reservasi::create($data); // <-- simpan
+
+        // 🔽 Panggil untuk kirim ke Google Form
+        $this->sendToGoogleForm($reservasi);
 
         return redirect()->back()->with('success', 'Reservasi berhasil Ditambah.');
     }
+
+
 
     public function destroyTanggal($id)
     {
@@ -268,7 +421,7 @@ class VilaController extends Controller
         }, $rawDates);
 
         // Encode ulang sebagai base64 untuk dikirim ke Blade
-        return view('layouts.calendar', [
+        return view('layout.calendar', [
             'datedata' => base64_encode(json_encode($dates))
         ]);
     }

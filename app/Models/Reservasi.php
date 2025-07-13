@@ -4,18 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
 class Reservasi extends Model
 {
     protected $table = 'reservasi';
-    public $timestamps = false;
+    public $timestamps = true;
     protected $casts = ['check_in_date' => 'date',];
 
 
     protected $fillable = [
-        'vila_id', 'nama_tamu', 'check_in_date', 'check_out_date'
+        'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
+        'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
     ];
+
 
     public static function byVilla($villaId)
     {
@@ -24,15 +27,24 @@ class Reservasi extends Model
                    ->get();
     }
 
-    public static function addCalender($villaId, $namaTamu, $checkIn, $checkOut)
+    public static function addCalender($vila_id, $nama_tamu, $check_in, $check_out, $data_lain = [])
     {
         return self::create([
-            'vila_id' => $villaId,
-            'nama_tamu' => $namaTamu,
-            'check_in_date' => Carbon::parse($checkIn)->format('Y-m-d'),
-            'check_out_date' => Carbon::parse($checkOut)->format('Y-m-d'),
+            'vila_id' => $vila_id,
+            'nama_tamu' => $nama_tamu,
+            'check_in_date' => $check_in,
+            'check_out_date' => $check_out,
+            'no' => $data_lain['no'] ?? '',
+            'no_hp' => $data_lain['no_hp'] ?? '',
+            'total' => $data_lain['total'] ?? '0',
+            'uang_masuk' => $data_lain['uang_masuk'] ?? '0',
+            'sisa' => $data_lain['sisa'] ?? '0',
+            'pelunasan' => $data_lain['pelunasan'] ?? now(),
+            'catatan' => $data_lain['catatan'] ?? '',
+            'status' => $data_lain['status'] ?? 'Belum Lunas',
         ]);
     }
+
 
 
 }
