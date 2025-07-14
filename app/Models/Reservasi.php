@@ -11,7 +11,6 @@ class Reservasi extends Model
 {
     protected $table = 'reservasi';
     public $timestamps = true;
-    protected $casts = ['check_in_date' => 'date',];
 
 
     protected $fillable = [
@@ -26,6 +25,12 @@ class Reservasi extends Model
                    ->where('check_in_date', '>=', now()->toDateString())
                    ->get();
     }
+
+    public function vila()
+    {
+        return $this->belongsTo(Vila::class, 'vila_id');
+    }
+
 
     public static function addCalender($vila_id, $nama_tamu, $check_in, $check_out, $data_lain = [])
     {

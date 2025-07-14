@@ -10,6 +10,7 @@ use Intervention\Image\Facades\Image as ImageManager;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf; // tambahkan paling atas
 
 
 class VilaController extends Controller
@@ -205,15 +206,12 @@ class VilaController extends Controller
         $today = Carbon::today()->toDateString();
 
         foreach ($datas as $datad) {
-            // Booking total (untuk jumlah booking)
             $allBooking = Reservasi::where('vila_id', $datad->vila_id)->get();
 
-            // Booking hari ini saja (untuk ditampilkan di bawah)
             $todayBooking = Reservasi::where('vila_id', $datad->vila_id)
                 ->whereDate('created_at', $today)
                 ->get();
 
-            // Untuk ditampilkan di bagian bawah halaman (booking hari ini)
             $todayFormatted = [];
             foreach ($todayBooking as $reserv) {
                 $todayFormatted[] = [
@@ -231,16 +229,18 @@ class VilaController extends Controller
                 ];
             }
 
-            // Ambil semua reservasi yang belum lunas
+            // ✅ Inisialisasi di sini
+            $unpaidFormatted = [];
+
             $unpaid = Reservasi::where('vila_id', $datad->vila_id)
                 ->whereIn('status', ['Belum Lunas', 'Cicil'])
                 ->whereDate('pelunasan', '<=', $today)
                 ->orderBy('pelunasan', 'asc')
                 ->get();
-                
+
             foreach ($unpaid as $reserv) {
                 $unpaidFormatted[] = [
-                    'id' => $reserv->id, // 🔥 TAMBAHKAN INI
+                    'id' => $reserv->id,
                     'no' => $reserv->no,
                     'nama_tamu' => $reserv->nama_tamu,
                     'no_hp' => $reserv->no_hp,
@@ -255,31 +255,36 @@ class VilaController extends Controller
                 ];
             }
 
-
             $vgadata[] = [
                 "vila_id" => $datad->vila_id,
                 "nama_vila" => $datad->nama_vila,
-                "total_booking" => $allBooking->count(),  // 🔹 jumlah total booking
-                "today_bookings" => $todayFormatted,       // 🔹 hanya yang dibuat hari ini
-                "unpaid_pelunasan" => $unpaidFormatted     // 🔹 semua yang belum lunas
+                "total_booking" => $allBooking->count(),
+                "today_bookings" => $todayFormatted,
+                "unpaid_pelunasan" => $unpaidFormatted
             ];
         }
 
         return view('vila.datakalender', ['villa' => $vgadata]);
     }
 
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:Belum Lunas,Lunas,Cicil'
+            'status' => 'required|in:Belum Lunas,Lunas,Cicil,Batal',
         ]);
 
         $reservasi = Reservasi::findOrFail($id);
 
-        // Jika diubah menjadi Lunas, update uang_masuk & sisa
         if ($request->status === 'Lunas') {
             $reservasi->uang_masuk = $reservasi->total;
             $reservasi->sisa = 0;
+        }
+
+        if ($request->status === 'Batal') {
+            $reservasi->total = $reservasi->uang_masuk;
+            $reservasi->sisa = 0;
+            $reservasi->catatan = $request->catatan ?? 'Dibatalkan tanpa catatan';
         }
 
         $reservasi->status = $request->status;
@@ -287,6 +292,8 @@ class VilaController extends Controller
 
         return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
     }
+
+
 
     public function cicil(Request $request, $id)
     {
@@ -314,6 +321,12 @@ class VilaController extends Controller
             'sisa' => $sisaBaru,
             'status' => $status,
         ]);
+        
+        if ($request->filled('pelunasan')) {
+                $dataUpdate['pelunasan'] = $request->pelunasan;
+            }
+
+        $reservasi->update($dataUpdate);
 
         return back()->with('success', 'Cicilan berhasil ditambahkan.');
     }
@@ -322,20 +335,25 @@ class VilaController extends Controller
     {
         $url = 'https://docs.google.com/forms/d/e/1FAIpQLSdubZ-jDxzJ-Oc4pRPU_lf5U1ZaGHHboL3XdJdOBwyfNk0zTQ/formResponse';
 
+        // Pastikan locale Carbon dalam Bahasa Indonesia
+        Carbon::setLocale('id');
+
         $data = [
-            'entry.1680845292' => $reservasi->no,
-            'entry.339184750' => $reservasi->nama_tamu,
-            'entry.1066245962' => $reservasi->check_in_date,
+            'entry.596168328' => $reservasi->no,
+            'entry.1680845292' => $reservasi->nama_tamu,
+            'entry.339184750' => $reservasi->vila->nama_vila ?? 'Tidak Diketahui',
+            'entry.1066245962' => Carbon::parse($reservasi->check_in_date)->translatedFormat('d F Y'),
             'entry.783451766' => $reservasi->total,
             'entry.109554030' => $reservasi->uang_masuk,
             'entry.715474057' => $reservasi->sisa,
-            'entry.1925620616' => $reservasi->pelunasan,
+            'entry.1925620616' => Carbon::parse($reservasi->pelunasan)->translatedFormat('d F Y'),
             'entry.1011407538' => $reservasi->catatan,
             'entry.342183189' => $reservasi->no_hp,
         ];
 
         Http::asForm()->post($url, $data);
     }
+
 
 
     public function tambahTanggal($id)
@@ -435,5 +453,18 @@ class VilaController extends Controller
             'reservasi' => $reservasi,
             'villa' => $villa
         ]);
+    }
+
+    public function cetakInvoicePDF($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+        $villa = Vila::findOrFail($reservasi->vila_id);
+
+        $pdf = Pdf::loadView('vila.invoice_pdf', [
+            'reservasi' => $reservasi,
+            'villa' => $villa,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('invoice-' . $reservasi->no . '.pdf');
     }
 }

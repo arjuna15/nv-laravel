@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('uang_masuk');
             $table->string('sisa');
             $table->string('pelunasan');
-            $table->string('catatan');
+            $table->text('catatan')->nullable();
             $table->string('no_hp');
             $table->string('status');
             $table->timestamps(); // created_at & updated_at

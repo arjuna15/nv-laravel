@@ -7,19 +7,16 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 40px;
-            background: #fefefe url('/images/invoice-bg.png') no-repeat top left;
-            background-size: cover;
+            font-size: 12px;
             color: #002F6C;
+            margin: 0;
+            padding: 30px;
         }
 
         .header {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .logo {
