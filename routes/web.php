@@ -76,6 +76,7 @@ Route::get('/calendar/{encodedData}', [VilaController::class, 'show'])->name('ca
 Route::patch('/vila/update-status/{id}', [VilaController::class, 'updateStatus'])->name('vila.updateStatus');
 Route::patch('/vila/cicil/{id}', [VilaController::class, 'cicil'])->name('vila.cicil');
 Route::patch('/vila/{id}/batal', [VilaController::class, 'batal'])->name('vila.batal');
+Route::patch('/vila/pindah/{id}', [VilaController::class, 'pindah'])->name('vila.pindah');
 Route::get('/invoice/{id}', [VilaController::class, 'cetakInvoice'])->name('vila.invoice');
 Route::get('/invoice/pdf/{id}', [VilaController::class, 'cetakInvoicePDF'])->name('vila.cetakInvoicePDF');
 

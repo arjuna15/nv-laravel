@@ -331,6 +331,25 @@ class VilaController extends Controller
         return back()->with('success', 'Cicilan berhasil ditambahkan.');
     }
 
+    public function pindah(Request $request, $id)
+    {
+        $request->validate([
+            'villa_id_baru' => 'required|exists:villas,id',
+            'checkin_baru' => 'required|date',
+            'checkout_baru' => 'required|date|after_or_equal:checkin_baru',
+        ]);
+
+        $reservasi = Reservasi::findOrFail($id);
+        $reservasi->vila_id = $request->villa_id_baru;
+        $reservasi->check_in_date = $request->checkin_baru;
+        $reservasi->check_out_date = $request->checkout_baru;
+        $reservasi->catatan = $request->catatan;
+        $reservasi->save();
+
+        return redirect()->back()->with('success', 'Data reservasi berhasil diperbarui.');
+    }
+
+
     public function sendToGoogleForm($reservasi)
     {
         $url = 'https://docs.google.com/forms/d/e/1FAIpQLSdubZ-jDxzJ-Oc4pRPU_lf5U1ZaGHHboL3XdJdOBwyfNk0zTQ/formResponse';
@@ -360,8 +379,9 @@ class VilaController extends Controller
     {
         $villa = Vila::getById($id);
         $reservasi = Reservasi::where('vila_id', $id)->orderBy('check_in_date', 'asc')->get();
+        $villas = Vila::all(); // ✅ tambahkan ini
 
-        return view('vila.tambah_kalender', compact('villa', 'reservasi'));
+        return view('vila.tambah_kalender', compact('villa', 'reservasi', 'villas'));
     }
 
 
@@ -452,19 +472,20 @@ class VilaController extends Controller
         return view('vila.invoice', [
             'reservasi' => $reservasi,
             'villa' => $villa
-        ]);
-    }
-
-    public function cetakInvoicePDF($id)
-    {
-        $reservasi = Reservasi::findOrFail($id);
-        $villa = Vila::findOrFail($reservasi->vila_id);
-
-        $pdf = Pdf::loadView('vila.invoice_pdf', [
-            'reservasi' => $reservasi,
-            'villa' => $villa,
         ])->setPaper('a4', 'portrait');
-
-        return $pdf->download('invoice-' . $reservasi->no . '.pdf');
     }
+
+public function cetakInvoicePDF($id)
+{
+    $reservasi = Reservasi::findOrFail($id); // hanya satu data
+    $villa = Vila::findOrFail($reservasi->vila_id);
+
+    $pdf = Pdf::loadView('vila.invoice_pdf', [
+        'reservasi' => $reservasi,
+        'villa' => $villa,
+    ]);
+
+    return $pdf->download('invoice-' . $reservasi->id . '.pdf');
+}
+
 }

@@ -125,6 +125,9 @@
                                             <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $r['id'] }}">
                                                 <i class="fas fa-cross"></i>  Cancel
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-warning ml-1" data-toggle="modal" data-target="#pindahModal{{ $r['id'] }}">
+                                                <i class="fas fa-random"></i> Pindah
+                                            </button>
                                         </form>
 
                                         <!-- Modal Cicil -->
@@ -188,9 +191,70 @@
                                                 </form>
                                             </div>
                                         </div>
+                                            <div class="modal fade" id="pindahModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pindahModalLabel{{ $r['id'] }}" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <form action="{{ route('vila.pindah', $r['id']) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Pindah Villa / Tanggal - {{ $r['nama_tamu'] }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label>Villa Baru</label>
+                                                                <select name="villa_id_baru" class="form-control" required>
+                                                                    <option value="">-- Pilih Villa --</option>
+                                                                    @foreach($villas as $villa)
+                                                                        <option value="{{ $villa->id }}" {{ $villa->id == $r['vila_id'] ? 'disabled' : '' }}>
+                                                                            {{ $villa->nama_vila }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Tanggal Check-in Baru</label>
+                                                                <input type="date" name="checkin_baru" class="form-control" value="{{ $r['check_in_date'] }}" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Tanggal Check-out Baru</label>
+                                                                <input type="date" name="checkout_baru" class="form-control" value="{{ $r['check_out_date'] }}" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Catatan (Opsional)</label>
+                                                                <textarea name="catatan" class="form-control" rows="2" placeholder="Tulis alasan atau catatan jika perlu..."></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Total</label>
+                                                                <input type="text" name="total" class="form-control" value="{{ $r['total'] }}" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Uang Masuk</label>
+                                                                <input type="text" name="uang_masuk" class="form-control" value="{{ $r['uang_masuk'] }}" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Sisa</label>
+                                                                <input type="text" name="sisa" class="form-control" value="{{ $r['sisa'] }}" required>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Pelunasan</label>
+                                                                <input type="date" name="pelunasan" class="form-control" value="{{ $r['pelunasan'] }}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('vila.cetakInvoicePDF', $r->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-trash-alt"></i> Cetak Invoice</a>
+                                        <a href="{{ route('vila.invoice', $r->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-trash-alt"></i> Cetak Invoice</a>
                                         <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
                                             @csrf
                                             @method('DELETE')
