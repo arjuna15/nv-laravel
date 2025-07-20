@@ -58,71 +58,70 @@
                     <h3 class="card-title">Daftar Tamu Booking Hari Ini</h3>
                 </div>
                 <div class="card-body">
-                    @foreach($villa as $v)
-                        @if(count($v['today_bookings']))
-                            <div class="table-responsive mb-3">
-                                <table class="table table-bordered">
-                                    <thead>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No Booking</th>
+                                    <th>Nama Tamu</th>
+                                    <th>Nama Villa</th>
+                                    <th>Check-in</th>
+                                    <th>Total</th>
+                                    <th>Uang Masuk</th>
+                                    <th>Sisa</th>
+                                    <th>Pelunasan</th>
+                                    <th>Catatan</th>
+                                    <th>No HP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($villa as $v)
+                                    @foreach($v['today_bookings'] as $b)
                                         <tr>
-                                            <th>No Booking</th>
-                                            <th>Nama Tamu</th>
-                                            <th>Nama Villa</th>
-                                            <th>Check-in</th>
-                                            <th>Total</th>
-                                            <th>Uang Masuk</th>
-                                            <th>Sisa</th>
-                                            <th>Pelunasan</th>
-                                            <th>Catatan</th>
-                                            <th>No HP</th>
+                                            <td>{{ $b['no'] }}</td>
+                                            <td>{{ $b['nama_tamu'] }}</td>
+                                            <td>{{ $v['nama_vila'] }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($b['check_in'])->translatedFormat('d F Y') }}</td>
+                                            <td>Rp {{ number_format($b['total'], 0, ',', '.') }}</td>
+                                            <td>Rp {{ number_format($b['uang_masuk'], 0, ',', '.') }}</td>
+                                            <td>Rp {{ number_format($b['sisa'], 0, ',', '.') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($b['pelunasan'])->translatedFormat('d F Y') }}</td>
+                                            <td>{{ $b['catatan'] }}</td>
+                                            <td>{{ $b['no_hp'] }}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($v['today_bookings'] as $i => $b)
-                                            <tr>
-                                                <td>{{ $b['no'] }}</td>
-                                                <td>{{ $b['nama_tamu'] }}</td>
-                                                <td>{{ $v['nama_vila'] }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($b['check_in'])->translatedFormat('d F Y') }}</td>
-                                                <td>Rp {{ number_format($b['total'], 0, ',', '.') }}</td>
-                                                <td>Rp {{ number_format($b['uang_masuk'], 0, ',', '.') }}</td>
-                                                <td>Rp {{ number_format($b['sisa'], 0, ',', '.') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($b['pelunasan'])->translatedFormat('d F Y') }}</td>
-                                                <td>{{ $b['catatan'] }}</td>
-                                                <td>{{ $b['no_hp'] }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-                    @endforeach
+                                    @endforeach
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
             <div class="card mt-4">
             <div class="card-header bg-warning">
                 <h3 class="card-title">Daftar Tamu Pelunasan Hari Ini</h3>
             </div>
             <div class="card-body">
-            @foreach($villa as $v)
-                @if(count($v['unpaid_pelunasan']))
-                    <div class="table-responsive mb-4">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>No Booking</th>
-                                    <th>Nama Tamu</th>
-                                    <th>Nama Villa</th>
-                                    <th>Check-in</th>
-                                    <th>Sisa</th>
-                                    <th>Pelunasan</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($v['unpaid_pelunasan'] as $i => $p)
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>No Booking</th>
+                                <th>Nama Tamu</th>
+                                <th>Nama Villa</th>
+                                <th>Check-in</th>
+                                <th>Sisa</th>
+                                <th>Pelunasan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $no = 1; @endphp
+                            @foreach($villa as $v)
+                                @foreach($v['unpaid_pelunasan'] as $p)
                                     <tr>
-                                        <td>{{ $i + 1 }}</td>
+                                        <td>{{ $no++ }}</td>
                                         <td>{{ $p['no'] }}</td>
                                         <td>{{ $p['nama_tamu'] }}</td>
                                         <td>{{ $v['nama_vila'] }}</td>
@@ -140,15 +139,12 @@
                                                     <option value="Batal" disabled {{ $p['status'] == 'Batal' ? 'selected' : '' }}>Cancel</option>
                                                 </select>
                                                 @if($p['status'] !== 'Batal')
-                                                <!-- Tombol Modal Cicil -->
-                                                <!-- Tombol Cicil -->
                                                 <button type="button" class="btn btn-sm btn-secondary mr-1" data-toggle="modal" data-target="#cicilModal{{ $p['id'] }}">
                                                     <i class="fas fa-wallet"></i> Cicil
                                                 </button>
                                                 @endif
-                                                <!-- Tombol Cancel -->
                                                 <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $p['id'] }}">
-                                                    <i class="fas fa-cross"></i>  Cancel
+                                                    <i class="fas fa-cross"></i> Cancel
                                                 </button>
                                             </form>
 
@@ -216,11 +212,10 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
-            @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
             {{-- Pagination --}}

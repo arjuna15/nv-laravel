@@ -29,89 +29,66 @@
 
             <div class="card-body">
                 {{-- Info Dasar --}}
-                <div class="form-group">
-                    <label>Nama Vila</label>
-                    <input type="text" class="form-control" name="nama_vila" value="{{ old('nama_vila', $vila->nama_vila ?? '') }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Lokasi Vila</label>
-                    <input type="text" class="form-control" name="lokasi_vila" value="{{ old('lokasi_vila', $vila->lokasi_vila ?? '') }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Kapasitas Vila</label>
-                    <input type="number" class="form-control" name="kapasitas_vila" value="{{ old('kapasitas_vila', $vila->kapasitas_vila ?? '') }}" required>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Nama Vila</label>
+                        <input type="text" class="form-control" name="nama_vila" value="{{ old('nama_vila', $vila->nama_vila ?? '') }}" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Lokasi Vila</label>
+                        <input type="text" class="form-control" name="lokasi_vila" value="{{ old('lokasi_vila', $vila->lokasi_vila ?? '') }}" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Kapasitas Vila</label>
+                        <input type="number" class="form-control" name="kapasitas_vila" value="{{ old('kapasitas_vila', $vila->kapasitas_vila ?? '') }}" required>
+                    </div>
                 </div>
 
                 {{-- Detail --}}
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="form-group col-md-4">
                         <label>Jumlah Kamar</label>
                         <input type="number" class="form-control" name="detail[jumlah_kamar]" value="{{ old('detail.jumlah_kamar', $detail['jumlah_kamar'] ?? '') }}">
                     </div>
-                    <div class="col-md-6">
+                    <div class="form-group col-md-4">
                         <label>Jumlah Tempat Tidur</label>
                         <input type="number" class="form-control" name="detail[jumlah_tempat_tidur]" value="{{ old('detail.jumlah_tempat_tidur', $detail['jumlah_tempat_tidur'] ?? '') }}">
                     </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-md-6">
+                    <div class="form-group col-md-4">
                         <label>Jumlah Kamar Mandi</label>
                         <input type="number" class="form-control" name="detail[jumlah_kamar_mandi]" value="{{ old('detail.jumlah_kamar_mandi', $detail['jumlah_kamar_mandi'] ?? '') }}">
                     </div>
-                    <div class="col-md-6">
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-4">
                         <label>Jumlah Parkir Mobil</label>
                         <input type="number" class="form-control" name="detail[jumlah_parkir]" value="{{ old('detail.jumlah_parkir', $detail['jumlah_parkir'] ?? '') }}">
                     </div>
-                </div>
-
-                <div class="form-group mt-2">
-                    <label>Kedalaman & Luas Kolam</label>
-                    <input type="text" class="form-control" name="kedalaman_luas_kolam" value="{{ old('kedalaman_luas_kolam', $vila->kedalaman_luas_kolam ?? '') }}">
-                </div>
-
-                {{-- Fasilitas --}}
-                <div class="form-group">
-                    <label>Fasilitas Tambahan</label>
-                    <textarea class="form-control" name="fasilitas_tambahan_vila">{{ old('fasilitas_tambahan_vila', $vila->fasilitas_tambahan_vila ?? '') }}</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Fasilitas Vila</label>
-                    <div id="fasilitas-container">
-                        @forelse($fasilitas as $f)
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" name="fasilitas_vila[]" value="{{ $f }}">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" name="fasilitas_vila[]" placeholder="Masukkan fasilitas vila">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
-                                </div>
-                            </div>
-                        @endforelse
+                    <div class="form-group col-md-4">
+                        <label>Kedalaman & Luas Kolam</label>
+                        <input type="text" class="form-control" name="kedalaman_luas_kolam" value="{{ old('kedalaman_luas_kolam', $vila->kedalaman_luas_kolam ?? '') }}">
                     </div>
-                    <button type="button" id="add-fasilitas" class="btn btn-sm btn-primary mt-2">Tambah Fasilitas</button>
+                    <div class="form-group col-md-4">
+                        <label>Fasilitas Tambahan</label>
+                        <input type="text" class="form-control" name="fasilitas_tambahan_vila" value="{{ old('fasilitas_tambahan_vila', $vila->fasilitas_tambahan_vila ?? '') }}">
+                    </div>
                 </div>
 
                 {{-- Harga --}}
-                <div class="form-group">
-                    <label>Harga Minggu - Kamis</label>
-                    <input type="number" class="form-control" name="harga_villa[minggu_kamis]" value="{{ old('harga_villa.minggu_kamis', $harga['minggu_kamis'] ?? '') }}" required>
-                </div>
-                <div class="form-group">
-                    <label>Harga Jumat</label>
-                    <input type="number" class="form-control" name="harga_villa[jumat]" value="{{ old('harga_villa.jumat', $harga['jumat'] ?? '') }}" required>
-                </div>
-                <div class="form-group">
-                    <label>Harga Sabtu</label>
-                    <input type="number" class="form-control" name="harga_villa[sabtu]" value="{{ old('harga_villa.sabtu', $harga['sabtu'] ?? '') }}" required>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Harga Minggu - Kamis</label>
+                        <input type="number" class="form-control" name="harga_villa[minggu_kamis]" value="{{ old('harga_villa.minggu_kamis', $harga['minggu_kamis'] ?? '') }}" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Harga Jumat</label>
+                        <input type="number" class="form-control" name="harga_villa[jumat]" value="{{ old('harga_villa.jumat', $harga['jumat'] ?? '') }}" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Harga Sabtu</label>
+                        <input type="number" class="form-control" name="harga_villa[sabtu]" value="{{ old('harga_villa.sabtu', $harga['sabtu'] ?? '') }}" required>
+                    </div>
                 </div>
 
                 {{-- Upload Gambar --}}
@@ -133,6 +110,29 @@
                         </div>
                     @endif
                 </div>
+
+                {{-- Fasilitas Vila --}}
+                <div class="form-group">
+                    <label>Fasilitas Vila</label>
+                    <div id="fasilitas-container">
+                        @forelse($fasilitas as $f)
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="fasilitas_vila[]" value="{{ $f }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="fasilitas_vila[]" placeholder="Masukkan fasilitas vila">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-danger remove-fasilitas">Hapus</button>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
+                    <button type="button" id="add-fasilitas" class="btn btn-sm btn-primary mt-2">Tambah Fasilitas</button>
+                </div>
             </div>
 
             <div class="card-footer text-right">
@@ -140,6 +140,7 @@
                     <i class="fas fa-save"></i> Simpan
                 </button>
             </div>
+
         </form>
 
     </div>

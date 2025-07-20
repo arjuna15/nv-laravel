@@ -42,6 +42,10 @@
           </a>
         </li>
 
+
+
+        <!-- Hanya untuk admin biasa -->
+        @if(auth()->user()->role === 'admin')
         <!-- Data Vila -->
         <li class="nav-item">
           <a href="{{ route('vila.index') }}" class="nav-link {{ Request::is('vila') ? 'active' : '' }}">
@@ -49,11 +53,10 @@
             <p>Data Vila</p>
           </a>
         </li>
-
         <!-- Tambah Vila -->
         <li class="nav-item">
           <a href="{{ route('vila.create') }}" class="nav-link {{ Request::is('vila/create') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-plus"></i>
+            <i class="nav-icon  fas fa-plus"></i>
             <p>Tambah Vila</p>
           </a>
         </li>
@@ -73,7 +76,25 @@
             <p>Info Tanggal</p>
           </a>
         </li>
+        @endif
+        <!-- Tutup untuk admin biasa -->
 
+        <!-- Hanya untuk super admin -->
+        @if(auth()->user()->role === 'superadmin')
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('dataVilla') }}">
+                <i class="fas fa-home"></i>
+                <span>Data Villa Owner</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('vila.index') }}">
+                <i class="fas fa-users-cog"></i>
+                <span>Kelola User</span>
+            </a>
+        </li>
+        @endif
+        <!-- Tutup untuk super admin -->
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

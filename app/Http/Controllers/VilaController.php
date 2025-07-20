@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vila;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Reservasi;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as ImageManager;
@@ -15,6 +18,63 @@ use Barryvdh\DomPDF\Facade\Pdf; // tambahkan paling atas
 
 class VilaController extends Controller
 {
+
+    public function showLogin()
+    {
+        return view('vila.login');
+    }
+
+    public function prosesLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'username' => ['required', 'string', 'min:3', 'max:30', 'exists:users,username'],
+            'password' => ['required', 'string', 'min:6'],
+        ], [
+            'username.exists' => 'Username tidak ditemukan',
+            'password.min' => 'Password minimal 6 karakter'
+        ]);
+
+        if (Auth::attempt($credentials, $request->remember)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/master');
+        }
+
+        return back()->withErrors([
+            'password' => 'Password salah.',
+        ])->onlyInput('username');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    }
+
+    public function login(Request $request)
+    {
+        // Validasi pakai username, bukan email
+        $credentials = $request->validate([
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6'],
+        ], [
+            'username.required' => 'Username wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+        ]);
+
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
+            return redirect()->intended('/master');
+        }
+
+        return back()->withErrors([
+            'username' => 'Username atau password salah.',
+        ])->onlyInput('username');
+    }
+
+
     public function index(Request $request)
     {
         $query = Vila::query();
@@ -293,6 +353,20 @@ class VilaController extends Controller
         return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
     }
 
+    public function pelunasan($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+
+        // Update status jadi Lunas dan sisa jadi 0
+        $reservasi->update([
+            'status' => 'Lunas',
+            'sisa' => 0,
+        ]);
+
+        return redirect()->back()->with('success', 'Status pelunasan berhasil diubah menjadi Lunas.');
+    }
+
+
 
 
     public function cicil(Request $request, $id)
@@ -334,20 +408,33 @@ class VilaController extends Controller
     public function pindah(Request $request, $id)
     {
         $request->validate([
-            'villa_id_baru' => 'required|exists:villas,id',
+            // 'villa_id_baru' => 'required|exists:villas,id',
             'checkin_baru' => 'required|date',
             'checkout_baru' => 'required|date|after_or_equal:checkin_baru',
+            'total' => 'required|numeric',
+            'uang_masuk' => 'required|numeric',
+            'pelunasan' => 'required|date',
         ]);
 
+        $sisa = $request->total - $request->uang_masuk;
         $reservasi = Reservasi::findOrFail($id);
-        $reservasi->vila_id = $request->villa_id_baru;
+
+        // $reservasi->vila_id = $request->villa_id_baru;
         $reservasi->check_in_date = $request->checkin_baru;
         $reservasi->check_out_date = $request->checkout_baru;
         $reservasi->catatan = $request->catatan;
+
+        // Data pembayaran
+        $reservasi->total = $request->total;
+        $reservasi->uang_masuk = $request->uang_masuk;
+        $reservasi->sisa = $sisa;
+        $reservasi->pelunasan = $request->pelunasan;
+
         $reservasi->save();
 
         return redirect()->back()->with('success', 'Data reservasi berhasil diperbarui.');
     }
+
 
 
     public function sendToGoogleForm($reservasi)

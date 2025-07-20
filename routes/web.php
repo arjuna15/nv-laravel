@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VilaController;
 
@@ -25,61 +25,39 @@ Route::get('/kontak', [UserController::class, 'kontak'])->name('kontak'); // Tam
 Route::get('/tentang', [UserController::class, 'tentang'])->name('tentang'); // Tambahkan ini
 Route::get('/detail/{villaId}/{villaName?}', [UserController::class, 'detail'])->name('user.detail');
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('index');
-    Route::post('/login', [AdminController::class, 'loginProcess'])->name('login');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+Route::get('/login', [VilaController::class, 'showLogin'])->name('login')->middleware('guest');
+Route::post('/login', [VilaController::class, 'prosesLogin']);
+Route::post('/logout', [VilaController::class, 'logout'])->name('logout');
 
-Route::middleware('auth:admin')->group(function () {
-    Route::get('/create-user', [AdminController::class, 'createUser'])->name('createUser');
-    Route::post('/store-user', [AdminController::class, 'storeUser'])->name('storeUser');
 
-    Route::get('/add-villa', [AdminController::class, 'addVillaForm'])->name('addVillaForm');
-    Route::post('/tambah-villa', [AdminController::class, 'tambahVilla'])->name('tambahVilla');
+// Hanya admin & superadmin
+Route::middleware(['auth', 'isadmin'])->group(function () {
+    Route::get('/dashboard', [VilaController::class, 'index'])->name('dashboard');
+        Route::get('/master', function () {
+        return view('layout.master');
+    });
 
-    Route::get('/edit-villa/{id}', [AdminController::class, 'updateVilla'])->name('editVilla');
-    Route::post('/update-villa', [AdminController::class, 'updateVillas'])->name('updateVillas');
+    Route::get('/calendar', [VilaController::class, 'calendarVilla'])->name('calendarVilla');
+    Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name('vila.tambahTanggal');
+    Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
+    Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
+    Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
+    Route::get('/calendar/{encodedData}', [VilaController::class, 'show'])->name('calendar.show');
+    Route::patch('/vila/update-status/{id}', [VilaController::class, 'updateStatus'])->name('vila.updateStatus');
+    Route::patch('/vila/{id}/pelunasan', [VilaController::class, 'pelunasan'])->name('vila.pelunasan');
+    Route::patch('/vila/cicil/{id}', [VilaController::class, 'cicil'])->name('vila.cicil');
+    Route::patch('/vila/{id}/batal', [VilaController::class, 'batal'])->name('vila.batal');
+    Route::patch('/vila/pindah/{id}', [VilaController::class, 'pindah'])->name('vila.pindah');
+    Route::get('/invoice/{id}', [VilaController::class, 'cetakInvoice'])->name('vila.invoice');
+    Route::get('/invoice/pdf/{id}', [VilaController::class, 'cetakInvoicePDF'])->name('vila.cetakInvoicePDF');
 
-    Route::get('/add-calendar/{id}', [AdminController::class, 'addCalendarForm'])->name('addCalendar');
-    Route::post('/add-calendars', [AdminController::class, 'addCalendars'])->name('addCalendars');
-
-    Route::get('/hapus-kalender/{id}', [AdminController::class, 'hapusKalenderForm'])->name('hapusKalender');
-    Route::get('/delete-booking-date/{id}', [AdminController::class, 'removeBookingDate'])->name('removeBookingDate');
-    Route::get('/delete-calendar-list/{id}', [AdminController::class, 'deleteCalendarList'])->name('deleteCalendarList');
-
-    Route::post('/delete-calendar-date', [AdminController::class, 'deleteCalendarDate'])->name('deleteCalendarDate');
-    Route::post('/delete-villa', [AdminController::class, 'deleteVilla'])->name('deleteVilla');
-
-    Route::get('/data-villa', [AdminController::class, 'dataVilla'])->name('dataVilla');
-
-    // Untuk menampilkan form upload (GET)
-    Route::get('/upload-foto/{id}', [AdminController::class, 'updateImage'])->name('updateImageForm');
-
-    Route::post('/upload-images', [AdminController::class, 'updateImages'])->name('updateImages');
-
-    Route::get('/calendar-villa', [AdminController::class, 'calendarVilla'])->name('calendarVilla');
+    // CRUD Villa
+    Route::resource('vila', VilaController::class);
 });
 
+// Hanya superadmin
+Route::middleware(['auth', 'issuperadmin'])->group(function () {
+    Route::get('/datavilla', [SuperAdminController::class, 'dataVilla'])->name('dataVilla');
+    Route::get('/detailtanggal/{vila_id}', [SuperAdminController::class, 'detailVilla'])->name('detailVilla');
 });
 
-// Halaman Dashboard AdminLTE
-Route::get('/master', function () {
-    return view('layout.master');
-});
-Route::get('/calendar', [VilaController::class, 'calendarVilla'])->name('calendarVilla');
-Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name('vila.tambahTanggal');
-Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
-Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
-Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
-// Route::get('/calendar/{data}', [VilaController::class, 'calendar'])->name('calendar.show');
-Route::get('/calendar/{encodedData}', [VilaController::class, 'show'])->name('calendar.show');
-Route::patch('/vila/update-status/{id}', [VilaController::class, 'updateStatus'])->name('vila.updateStatus');
-Route::patch('/vila/cicil/{id}', [VilaController::class, 'cicil'])->name('vila.cicil');
-Route::patch('/vila/{id}/batal', [VilaController::class, 'batal'])->name('vila.batal');
-Route::patch('/vila/pindah/{id}', [VilaController::class, 'pindah'])->name('vila.pindah');
-Route::get('/invoice/{id}', [VilaController::class, 'cetakInvoice'])->name('vila.invoice');
-Route::get('/invoice/pdf/{id}', [VilaController::class, 'cetakInvoicePDF'])->name('vila.cetakInvoicePDF');
-
-
-// CRUD Villa
-Route::resource('vila', VilaController::class);
