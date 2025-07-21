@@ -558,7 +558,7 @@ public function storeTanggal(Request $request)
 
     public function cetakInvoicePDF($id)
     {
-        $reservasi = Reservasi::findOrFail($id); // hanya satu data
+        $reservasi = Reservasi::findOrFail($id);
         $villa = Vila::findOrFail($reservasi->vila_id);
 
         $pdf = Pdf::loadView('vila.invoice_pdf', [
@@ -566,7 +566,20 @@ public function storeTanggal(Request $request)
             'villa' => $villa,
         ]);
 
-        return $pdf->download('invoice-' . $reservasi->id . '.pdf');
+        // Format: (status) (nama tamu) (nama villa) (tanggal cekin)
+        $fileName = sprintf(
+            'Invoice %s %s %s %s.pdf',
+            $reservasi->status,
+            $reservasi->nama_tamu,
+            $villa->nama_vila,
+            \Carbon\Carbon::parse($reservasi->check_in_date)->format('d M Y')
+        );
+
+        // Ganti spasi jadi underscore atau strip kalau mau rapi:
+        $fileName = str_replace(' ', '_', $fileName); // Optional
+
+        return $pdf->download($fileName);
     }
+
 
 }

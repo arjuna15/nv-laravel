@@ -67,7 +67,6 @@
 
     .kepada h4 {
       font-size: 18px;
-      font-weight: 600;
       margin: 5px 0;
       color: #002f6c;
     }
@@ -140,14 +139,17 @@
     <div class="invoice-title">
       <h2>INVOICE</h2>
       <p>Tanggal</p>
-      <p>{{ \Carbon\Carbon::parse($reservasi->created_at)->format('d F Y') }}</p>
+      <p>{{ \Carbon\Carbon::now()->format('d F Y') }}</p>
     </div>
 
     <div class="kepada">
-      <h4 style="margin-bottom:20px; font-family: 'Montserrat', sans-serif;">Kepada</h4>
-      <h4 style="font-family: 'Montserrat', sans-serif;">{{ strtoupper($reservasi->nama_tamu) }}</h4>
-      <h4 style="font-family: 'Montserrat', sans-serif;">{{ strtoupper($reservasi->status) }} {{ strtoupper($villa->nama_vila) }}</h4>
+    <h4 style="margin-bottom:20px; font-family: 'Montserrat', sans-serif;">Kepada</h4>
+    <h4 style="font-family: 'Montserrat', sans-serif;">{{ strtoupper($reservasi->nama_tamu) }}</h4>
+    <h4 style="font-family: 'Montserrat', sans-serif;">
+        {{ $reservasi->status === 'Lunas' ? 'PELUNASAN' : 'DP' }} {{ strtoupper($villa->nama_vila) }}
+    </h4>
     </div>
+
 
     <div class="table-wrapper">
       <table class="table">

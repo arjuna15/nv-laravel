@@ -118,6 +118,7 @@
                         <th>Check-in</th>
                         <th>Sisa</th>
                         <th>Pelunasan</th>
+                        <th>Catatan</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -131,6 +132,7 @@
                                 <td>{{ $p['nama_tamu'] }}</td>
                                 <td>{{ $v['nama_vila'] }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p['check_in'])->translatedFormat('d F Y') }}</td>
+                                <td>{{ $p['catatan'] }}</td>
                                 <td>Rp {{ number_format($p['sisa'], 0, ',', '.') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p['pelunasan'])->translatedFormat('d F Y') }}</td>
                                 <td>
