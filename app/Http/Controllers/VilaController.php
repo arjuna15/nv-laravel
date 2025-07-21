@@ -472,20 +472,22 @@ class VilaController extends Controller
     }
 
 
-    public function storeTanggal(Request $request)
-    {
-        $data = $request->only([
-            'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
-            'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
-        ]);
+public function storeTanggal(Request $request)
+{
+    $data = $request->only([
+        'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
+        'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
+    ]);
 
-        $reservasi = Reservasi::create($data); // <-- simpan
+    $reservasi = Reservasi::create($data); // <-- simpan
 
-        // 🔽 Panggil untuk kirim ke Google Form
-        $this->sendToGoogleForm($reservasi);
+    // 🔽 Panggil untuk kirim ke Google Form
+    $this->sendToGoogleForm($reservasi);
 
-        return redirect()->back()->with('success', 'Reservasi berhasil Ditambah.');
-    }
+    // 🔽 Redirect langsung ke PDF download
+    return redirect()->route('vila.cetakInvoicePDF', ['id' => $reservasi->id]);
+}
+
 
 
 
@@ -554,28 +556,17 @@ class VilaController extends Controller
         ]);
     }
 
-    public function cetakInvoice($id)
+    public function cetakInvoicePDF($id)
     {
-        $reservasi = Reservasi::findOrFail($id);
+        $reservasi = Reservasi::findOrFail($id); // hanya satu data
         $villa = Vila::findOrFail($reservasi->vila_id);
 
-        return view('vila.invoice', [
+        $pdf = Pdf::loadView('vila.invoice_pdf', [
             'reservasi' => $reservasi,
-            'villa' => $villa
-        ])->setPaper('a4', 'portrait');
+            'villa' => $villa,
+        ]);
+
+        return $pdf->download('invoice-' . $reservasi->id . '.pdf');
     }
-
-public function cetakInvoicePDF($id)
-{
-    $reservasi = Reservasi::findOrFail($id); // hanya satu data
-    $villa = Vila::findOrFail($reservasi->vila_id);
-
-    $pdf = Pdf::loadView('vila.invoice_pdf', [
-        'reservasi' => $reservasi,
-        'villa' => $villa,
-    ]);
-
-    return $pdf->download('invoice-' . $reservasi->id . '.pdf');
-}
 
 }

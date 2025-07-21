@@ -50,15 +50,15 @@
                     </div>
                     <div class="col-md-3">
                         <label for="total">Total Biaya</label>
-                        <input id="total" name="total" type="text" class="form-control" required>
+                        <input id="total" name="total" type="number" class="form-control" required>
                     </div>
                     <div class="col-md-3">
                         <label for="uang_masuk">Uang Masuk (DP)</label>
-                        <input id="uang_masuk" name="uang_masuk" type="text" class="form-control" required>
+                        <input id="uang_masuk" name="uang_masuk" type="number" class="form-control" required>
                     </div>
                     <div class="col-md-3">
                         <label for="sisa">Sisa Pembayaran</label>
-                        <input id="sisa" name="sisa" type="text" class="form-control" required>
+                        <input id="sisa" name="sisa" type="number" class="form-control" required>
                     </div>
                 </div>
 
@@ -334,83 +334,57 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkInInput = document.getElementById('check_in_date');
-        const checkOutInput = document.getElementById('check_out_date');
-
-        checkInInput.addEventListener('change', function () {
-            if (checkInInput.value) {
-                const checkInDate = new Date(checkInInput.value);
-                checkInDate.setDate(checkInDate.getDate() + 1);
-
-                const year = checkInDate.getFullYear();
-                const month = String(checkInDate.getMonth() + 1).padStart(2, '0');
-                const day = String(checkInDate.getDate()).padStart(2, '0');
-
-                checkOutInput.value = `${year}-${month}-${day}`;
-            }
-        });
-    });
-</script>
-<script>
 document.addEventListener('DOMContentLoaded', function () {
-    const totalInput = document.getElementById('total');
-    const dpInput = document.getElementById('uang_masuk');
-    const sisaInput = document.getElementById('sisa');
-    const checkInInput = document.getElementById('check_in_date');
-    const pelunasanInput = document.getElementById('pelunasan');
+    const checkIn = document.getElementById('check_in_date');
+    const checkOut = document.getElementById('check_out_date');
+    const total = document.getElementById('total');
+    const dp = document.getElementById('uang_masuk');
+    const sisa = document.getElementById('sisa');
+    const pelunasan = document.getElementById('pelunasan');
 
-    function formatToNumber(value) {
-        return parseInt(value.replace(/[^0-9]/g, '')) || 0;
+    function toDateInputValue(date) {
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+        return localDate.toISOString().split('T')[0];
     }
+
+    checkIn.addEventListener('change', function () {
+        // Set check-out besoknya
+        if (checkIn.value) {
+            let inDate = new Date(checkIn.value);
+            let outDate = new Date(inDate);
+            outDate.setDate(outDate.getDate() + 1);
+            checkOut.value = toDateInputValue(outDate);
+
+            // Hitung tanggal pelunasan
+            let today = new Date();
+            let daysBefore = Math.ceil((inDate - today) / (1000 * 60 * 60 * 24));
+
+            let pelunasanDate = new Date(inDate);
+
+            if (daysBefore >= 6 && daysBefore <= 5) {
+                pelunasanDate.setDate(inDate.getDate() - 2);
+            } else if (daysBefore <= 4 && daysBefore >= 1) {
+                pelunasanDate = inDate;
+            } else {
+                pelunasanDate.setDate(inDate.getDate() - 3);
+            }
+
+            pelunasan.value = toDateInputValue(pelunasanDate);
+        }
+    });
 
     function hitungSisa() {
-        const total = formatToNumber(totalInput.value);
-        const dp = formatToNumber(dpInput.value);
-        const sisa = total - dp;
-        sisaInput.value = sisa < 0 ? 0 : sisa;
+        const t = parseFloat(total.value) || 0;
+        const d = parseFloat(dp.value) || 0;
+        const s = t - d;
+        sisa.value = s >= 0 ? s : 0;
     }
 
-    function aturTanggalPelunasan() {
-        const checkInValue = checkInInput.value;
-        if (!checkInValue) return;
-
-        const checkInDate = new Date(checkInValue);
-        const today = new Date();
-
-        // Buat versi tanpa waktu agar akurat
-        checkInDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-
-        const diffTime = checkInDate.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // selisih hari
-
-        let pelunasanDate;
-
-        if (diffDays === 6 || diffDays === 5) {
-            // H-6 atau H-5 → pelunasan H-2
-            pelunasanDate = new Date(checkInDate);
-            pelunasanDate.setDate(checkInDate.getDate() - 1);
-        } else if (diffDays <= 3 && diffDays >= 1) {
-            // H-3, H-2, H-1 → pelunasan = hari H
-            pelunasanDate = new Date(checkInDate);
-        } else {
-            // Default: pelunasan H-3
-            pelunasanDate = new Date(checkInDate);
-            pelunasanDate.setDate(checkInDate.getDate() - 2);
-        }
-
-        // Format YYYY-MM-DD
-        const formatted = pelunasanDate.toISOString().split('T')[0];
-        pelunasanInput.value = formatted;
-    }
-
-    totalInput.addEventListener('input', hitungSisa);
-    dpInput.addEventListener('input', hitungSisa);
-    checkInInput.addEventListener('change', aturTanggalPelunasan);
+    total.addEventListener('input', hitungSisa);
+    dp.addEventListener('input', hitungSisa);
 });
 </script>
-
 
 @endpush
 

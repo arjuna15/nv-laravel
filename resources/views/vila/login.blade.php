@@ -2,58 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login | AdminLTE</title>
-  <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/fontawesome-free/css/all.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('AdminLTE/dist/css/adminlte.min.css') }}">
+  <title>Login | Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- SB Admin 2 CSS -->
+  <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('sbadmin2/css/sb-admin-2.min.css') }}" rel="stylesheet">
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-  <div class="login-logo">
-    <b>Admin</b>Login
-  </div>
-  <div class="card">
-    <div class="card-body login-card-body">
-      <p class="login-box-msg">Masuk untuk melanjutkan</p>
+<body class="bg-gradient-primary">
 
-      @if ($errors->any())
-          <div class="alert alert-danger">
-              {{ $errors->first() }}
-          </div>
-      @endif
+  <div class="container">
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
 
-      <form action="{{ url('/login') }}" method="POST">
-        @csrf
-        <div class="input-group mb-3">
-          <input type="text" name="username" class="form-control" placeholder="Username" value="{{ old('username') }}" required>
-          <div class="input-group-append">
-            <div class="input-group-text"><span class="fas fa-user"></span></div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="password" name="password" class="form-control" placeholder="Password" required>
-          <div class="input-group-append">
-            <div class="input-group-text"><span class="fas fa-lock"></span></div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <input type="checkbox" id="remember" name="remember">
-              <label for="remember">Ingat saya</label>
+      <div class="col-xl-6 col-lg-7 col-md-9">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="p-5">
+              <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4"><b>Admin</b> Login</h1>
+                <p class="mb-4">Masuk untuk melanjutkan</p>
+              </div>
+
+              @if ($errors->any())
+                  <div class="alert alert-danger">
+                      {{ $errors->first() }}
+                  </div>
+              @endif
+
+              <form class="user" method="POST" action="{{ url('/login') }}">
+                @csrf
+                <div class="form-group">
+                  <input type="text" class="form-control form-control-user" name="username" value="{{ old('username') }}" required placeholder="Masukkan Username...">
+                </div>
+                <div class="form-group">
+                  <input type="password" class="form-control form-control-user" name="password" required placeholder="Masukkan Password...">
+                </div>
+                <div class="form-group">
+                  <div class="custom-control custom-checkbox small">
+                    <input type="checkbox" class="custom-control-input" id="remember" name="remember">
+                    <label class="custom-control-label" for="remember">Ingat saya</label>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-user btn-block">
+                  Masuk
+                </button>
+              </form>
+
             </div>
           </div>
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Masuk</button>
-          </div>
         </div>
-      </form>
-    </div>
-  </div>
-</div>
 
-<script src="{{ asset('AdminLTE/plugins/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('AdminLTE/dist/js/adminlte.min.js') }}"></script>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SB Admin 2 Scripts -->
+  <script src="{{ asset('sbadmin2/vendor/jquery/jquery.min.js') }}"></script>
+  <script src="{{ asset('sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('sbadmin2/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+  <script src="{{ asset('sbadmin2/js/sb-admin-2.min.js') }}"></script>
+
 </body>
 </html>

@@ -41,11 +41,11 @@
                         <label>Nama Vila</label>
                         <input type="text" class="form-control" name="nama_vila" value="{{ old('nama_vila', $vila->nama_vila ?? '') }}" required>
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-6">
                         <label>Lokasi Vila</label>
                         <input type="text" class="form-control" name="lokasi_vila" value="{{ old('lokasi_vila', $vila->lokasi_vila ?? '') }}" required>
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-2">
                         <label>Kapasitas Vila</label>
                         <input type="number" class="form-control" name="kapasitas_vila" value="{{ old('kapasitas_vila', $vila->kapasitas_vila ?? '') }}" required>
                     </div>
@@ -55,29 +55,29 @@
                 <hr>
                 <h6 class="text-primary mb-3">Detail Vila</h6>
                 <div class="row">
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label>Jumlah Kamar</label>
                         <input type="number" class="form-control" name="detail[jumlah_kamar]" value="{{ old('detail.jumlah_kamar', $detail['jumlah_kamar'] ?? '') }}">
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label>Jumlah Tempat Tidur</label>
                         <input type="number" class="form-control" name="detail[jumlah_tempat_tidur]" value="{{ old('detail.jumlah_tempat_tidur', $detail['jumlah_tempat_tidur'] ?? '') }}">
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label>Jumlah Kamar Mandi</label>
                         <input type="number" class="form-control" name="detail[jumlah_kamar_mandi]" value="{{ old('detail.jumlah_kamar_mandi', $detail['jumlah_kamar_mandi'] ?? '') }}">
                     </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label>Jumlah Parkir Mobil</label>
                         <input type="number" class="form-control" name="detail[jumlah_parkir]" value="{{ old('detail.jumlah_parkir', $detail['jumlah_parkir'] ?? '') }}">
                     </div>
-                    <div class="form-group col-md-4">
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
                         <label>Kedalaman & Luas Kolam</label>
                         <input type="text" class="form-control" name="kedalaman_luas_kolam" value="{{ old('kedalaman_luas_kolam', $vila->kedalaman_luas_kolam ?? '') }}">
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-9">
                         <label>Fasilitas Tambahan</label>
                         <input type="text" class="form-control" name="fasilitas_tambahan_vila" value="{{ old('fasilitas_tambahan_vila', $vila->fasilitas_tambahan_vila ?? '') }}">
                     </div>

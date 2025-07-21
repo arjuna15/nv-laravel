@@ -1,189 +1,195 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Invoice</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Penting untuk responsif -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 40px;
-            background: #fefefe url('/images/invoice-bg.png') no-repeat top left;
-            background-size: cover;
-            color: #002F6C;
-        }
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
 
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 30px;
-        }
+    body {
+      width: 794px;
+      height: 1123px;
+      margin: 0 auto;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #fdfdfc;
+      color: #002f6c;
+      box-sizing: border-box;
+    }
 
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-        }
+    .container {
+      width: 700px;
+      margin: 0 auto;
+      padding: 40px 30px 100px 30px;
+      position: relative;
+    }
 
-        .invoice-title {
-            text-align: right;
-        }
+    .header-logo {
+      font-size: 56px;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 80px;
+    }
 
-        .invoice-title h2 {
-            margin: 0;
-            font-size: 22px;
-        }
+    .invoice-title {
+      position: absolute;
+      top: 40px;
+      right: 30px;
+      text-align: right;
+    }
 
-        .invoice-title small {
-            font-size: 14px;
-            display: block;
-        }
+    .invoice-title h2 {
+      font-size: 32px;
+      margin: 150px 0 30px 0;
+    }
 
-        .info {
-            margin-bottom: 20px;
-        }
+    .invoice-title p {
+      font-size: 18px;
+      margin: 4px 0;
+    }
 
-        .info strong {
-            display: block;
-            font-size: 16px;
-        }
+    .kepada {
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
 
-        .info small {
-            font-size: 14px;
-            color: #333;
-        }
+    .kepada h4 {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 4px 0;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+    .table-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-        table thead {
-            background: #002F6C;
-            color: white;
-        }
+    .table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 100%;
+    }
 
-        table th, table td {
-            padding: 12px;
-            text-align: center;
-            font-size: 14px;
-        }
+    .table thead {
+      background-color: #002f6c;
+      color: white;
+    }
 
-        .total {
-            font-weight: bold;
-            font-size: 20px;
-            margin-top: 20px;
-            text-align: right;
-            border-top: 2px solid #002F6C;
-            padding-top: 10px;
-        }
+    .table th {
+      text-align: center;
+      padding: 10px;
+      font-size: 20px;
+    }
 
-        .footer {
-            margin-top: 40px;
-            font-size: 13px;
-        }
+    .table td {
+      text-align: center;
+      padding: 12px 10px;
+      font-size: 16px;
+      color: #002f6c;
+    }
 
-        .footer .admin {
-            font-weight: bold;
-        }
+    .table tbody td {
+      background-color: #f2f2f2;
+    }
 
-        .footer .address {
-            margin-top: 8px;
-        }
+    .total {
+      margin-top: 40px;
+      text-align: right;
+      font-weight: bold;
+      font-size: 24px;
+      border-top: 2px solid #002f6c;
+      padding-top: 8px;
+    }
 
-        .footer .contacts {
-            margin-top: 4px;
-        }
+    .footer-section {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 200px;
+      font-size: 14px;
+    }
 
-        /* Responsif */
-        @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
+    .footer-section .footer-left,
+    .footer-section .footer-right {
+      width: 48%;
+    }
 
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+    .footer-left {
+      color: #333;
+      line-height: 1.6;
+    }
 
-            .invoice-title {
-                text-align: left;
-                margin-top: 10px;
-            }
+    .footer-right {
+      text-align: right;
+      font-weight: bold;
+    }
 
-            table th, table td {
-                font-size: 12px;
-                padding: 8px;
-            }
-
-            .total {
-                font-size: 18px;
-            }
-
-            .logo {
-                font-size: 24px;
-            }
-
-            .invoice-title h2 {
-                font-size: 20px;
-            }
-
-            .invoice-title small {
-                font-size: 12px;
-            }
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">nge <span style="color:#002F6C">VILLA.YUK</span></div>
-        <div class="invoice-title">
-            <h2>INVOICE</h2>
-            <small>Tanggal<br>{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</small>
-        </div>
+  <div class="container">
+    <div class="header-logo">NGEVILLAYUK</div>
+
+    <div class="invoice-title">
+      <h2>INVOICE</h2>
+      <p>Tanggal</p>
+      <p>{{ \Carbon\Carbon::parse($reservasi->created_at)->format('d F Y') }}</p>
     </div>
 
-    <div class="info">
-        <strong>Kepada</strong>
-        <small>{{ $reservasi->nama_tamu }}</small>
+    <div class="kepada">
+      <h4 style="margin-bottom:20px">Kepada</h4>
+      <h4>{{ strtoupper($reservasi->nama_tamu) }}</h4>
+      <h4>{{ strtoupper($reservasi->status) }} {{ strtoupper($villa->nama_vila) }}</h4>
     </div>
 
-    <table>
+    <div class="table-wrapper">
+      <table class="table">
         <thead>
-            <tr>
-                <th>Cekin</th>
-                <th>Cekout</th>
-                <th>Full Price</th>
-                <th>Payment</th>
-            </tr>
+          <tr>
+            <th>Cekin</th>
+            <th>Cekout</th>
+            <th>Full Price</th>
+            <th>Payment</th>
+          </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>{{ \Carbon\Carbon::parse($reservasi->check_in_date)->translatedFormat('d F Y') }}<br>PUKUL 14:00</td>
-                <td>{{ \Carbon\Carbon::parse($reservasi->check_out_date)->translatedFormat('d F Y') }}<br>PUKUL 12:00</td>
-                <td>Rp {{ number_format($reservasi->total, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($reservasi->uang_masuk, 0, ',', '.') }}</td>
-            </tr>
+          <tr>
+            <td>
+              {{ \Carbon\Carbon::parse($reservasi->check_in_date)->format('d M Y') }}<br>
+              PUKUL 14:00
+            </td>
+            <td>
+              {{ \Carbon\Carbon::parse($reservasi->check_out_date)->format('d M Y') }}<br>
+              PUKUL 12:00
+            </td>
+            <td>{{ number_format($reservasi->total, 0, ',', '.') }}</td>
+            <td>{{ number_format($reservasi->payment_amount ?? 0, 0, ',', '.') }}</td>
+          </tr>
         </tbody>
-    </table>
+      </table>
+    </div>
 
     <div class="total">
-        TOTAL &nbsp;&nbsp;&nbsp;&nbsp; Rp {{ number_format($reservasi->total, 0, ',', '.') }}
+      TOTAL &nbsp;&nbsp; {{ number_format($reservasi->total, 0, ',', '.') }}
     </div>
 
-    <div class="footer">
-        <div class="admin">Admin Ngevillayuk</div>
-        <div class="address">
-            Office : Jln. Cikopo Selatan, Sukagalih<br>
-            Megamendung, Bogor
-        </div>
-        <div class="contacts">
-            Admin 1 : 0896-0770-9270<br>
-            Admin 2 : 0895-3606-10100
-        </div>
+    <div class="footer-section">
+      <div class="footer-left">
+        Office: Jln.Cikopo Selatan, Sukagalih<br>
+        Megamendung, Bogor<br>
+        Admin 1: 0896-0770-9270<br>
+        Admin 2: 0895-3606-10100
+      </div>
+      <div class="footer-right">
+        Admin Ngevillayuk
+      </div>
     </div>
+  </div>
 </body>
 </html>

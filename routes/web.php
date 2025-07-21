@@ -59,5 +59,7 @@ Route::middleware(['auth', 'isadmin'])->group(function () {
 Route::middleware(['auth', 'issuperadmin'])->group(function () {
     Route::get('/datavilla', [SuperAdminController::class, 'dataVilla'])->name('dataVilla');
     Route::get('/detailtanggal/{vila_id}', [SuperAdminController::class, 'detailVilla'])->name('detailVilla');
+    Route::get('/datausers', [SuperAdminController::class, 'index'])->name('superadmin.index');
+    Route::post('/datausers', [SuperAdminController::class, 'store'])->name('superadmin.store');
 });
 

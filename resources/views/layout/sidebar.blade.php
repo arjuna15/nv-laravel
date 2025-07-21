@@ -6,7 +6,7 @@
         <div class="sidebar-brand-icon">
             <i class="fas fa-home"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">Puncak Media / Ngevillayuk</div>
+        <div class="sidebar-brand-text mx-3">Admin</div>
     </a>
 
     <!-- Divider -->
@@ -56,6 +56,24 @@
                 <span>Info Tanggal</span>
             </a>
         </li>
+            <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Logout -->
+    <li class="nav-item">
+        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <i class="fas fa-fw fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    </li>
+
+    <!-- Sidebar Toggler -->
+    <div class="text-center d-none d-md-inline mt-2">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
     @endif
 
     @if(auth()->user()->role === 'superadmin')
@@ -73,20 +91,30 @@
 
         <!-- Kelola User -->
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('vila.index') }}">
+            <a class="nav-link" href="{{ route('superadmin.index') }}">
                 <i class="fas fa-fw fa-users-cog"></i>
                 <span>Kelola User</span>
             </a>
         </li>
-    @endif
+            <!-- Divider -->
+    <hr class="sidebar-divider">
 
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
+    <!-- Logout -->
+    <li class="nav-item">
+        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <i class="fas fa-fw fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    </li>
 
     <!-- Sidebar Toggler -->
-    <div class="text-center d-none d-md-inline">
+    <div class="text-center d-none d-md-inline mt-2">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
+    @endif
 
 </ul>
 <!-- End of Sidebar -->

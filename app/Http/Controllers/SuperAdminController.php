@@ -123,6 +123,31 @@ class SuperAdminController extends Controller
         ]);
     }
 
+    public function index()
+    {
+        $users = User::all();
+        return view('superadmin.user', compact('users'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role'     => 'required|in:admin,superadmin',
+        ]);
+
+        User::create([
+            'name'     => $request->name,
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'role'     => $request->role,
+        ]);
+
+        return redirect()->route('superadmin.index')->with('success', 'User berhasil ditambahkan.');
+    }
+
 
 
 }

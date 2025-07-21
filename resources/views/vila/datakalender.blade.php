@@ -134,33 +134,166 @@
                                 <td>Rp {{ number_format($p['sisa'], 0, ',', '.') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p['pelunasan'])->translatedFormat('d F Y') }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('vila.updateStatus', $p['id']) }}" class="d-flex align-items-center">
                                         @csrf
                                         @method('PATCH')
-                                        <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">                                                
-                                            <option value="Belum Lunas" {{ $p['status'] == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
-                                            <option value="Cicil" disabled {{ $p['status'] == 'Cicil' ? 'selected' : '' }}>Cicil</option>
-                                            <option value="Lunas" {{ $p['status'] == 'Lunas' ? 'selected' : '' }}>Lunas</option>
-                                            <option value="Batal" disabled {{ $p['status'] == 'Batal' ? 'selected' : '' }}>Batal</option>
-                                        </select>
 
-                                        @if($p['status'] !== 'Batal')
-                                        <button type="button" class="btn btn-sm btn-secondary mr-1" data-toggle="modal" data-target="#cicilModal{{ $p['id'] }}">
-                                            <i class="fas fa-wallet"></i>
-                                        </button>
+                                        @if($p['status'] !== 'Lunas' && $p['status'] !== 'Batal')
+                                            <button class="btn btn-sm btn-success my-1" data-toggle="modal" data-target="#pelunasanModal{{ $p['id'] }}">
+                                                <i class="fas fa-check-circle"></i> Pelunasan
+                                            </button>
+
+                                            <button class="btn btn-sm btn-secondary my-1" data-toggle="modal" data-target="#cicilModal{{ $p['id'] }}">
+                                                <i class="fas fa-wallet"></i> Cicil
+                                            </button>
                                         @endif
 
-                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $p['id'] }}">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    </form>
+                                        @if($p['status'] !== 'Batal')
+                                            <button class="btn btn-sm btn-danger my-1" data-toggle="modal" data-target="#batalModal{{ $p['id'] }}">
+                                                <i class="fas fa-times"></i> Batal
+                                            </button>
 
-                                    <!-- Modal Cicil -->
-                                    @include('vila.modal_cicil', ['p' => $p])
-
-                                    <!-- Modal Batal -->
-                                    @include('vila.modal_batal', ['p' => $p])
+                                            <button class="btn btn-sm btn-warning my-1" data-toggle="modal" data-target="#pindahModal{{ $p['id'] }}">
+                                                <i class="fas fa-random"></i> Pindah
+                                            </button>
+                                        @endif
                                 </td>
+                                {{-- Modal (pelunasan, cicil, batal, pindah) tetap ada di sini --}}
+                                    <!-- Modal Pelunasan -->
+                                <div class="modal fade" id="pelunasanModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pelunasanModalLabel{{ $p['id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <form action="{{ route('vila.pelunasan', $p['id']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Konfirmasi Pelunasan - {{ $p['nama_tamu'] }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Apakah Anda yakin ingin menandai pemesanan ini sebagai <strong>Lunas</strong>?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-success">Ya, Lunas</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>   
+                                <!-- Modal Cicil -->
+                                <div class="modal fade" id="cicilModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="cicilModalLabel{{ $p['id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <form action="{{ route('vila.cicil', $p['id']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Tambah Cicilan - {{ $p['nama_tamu'] }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Jumlah Cicilan</label>
+                                                        <input type="number" name="jumlah" class="form-control" min="1" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Ubah Tanggal Pelunasan (Opsional)</label>
+                                                        <input type="date" name="pelunasan" class="form-control" value="{{ $p['pelunasan'] }}">
+                                                    </div>
+                                                </div>                                                    
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- Modal Batal -->
+                                <div class="modal fade" id="batalModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="batalModalLabel{{ $p['id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <form action="{{ route('vila.updateStatus', $p['id']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="Batal">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Pembatalan Reservasi - {{ $p['nama_tamu'] }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Catatan Pembatalan</label>
+                                                        <textarea name="catatan" class="form-control" rows="3" required placeholder="Isi alasan pembatalan..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-danger">Konfirmasi Batal</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                    <div class="modal fade" id="pindahModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pindahModalLabel{{ $p['id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <form action="{{ route('vila.pindah', $p['id']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Pindah Villa / Tanggal - {{ $p['nama_tamu'] }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+
+                                                    <div class="form-group">
+                                                        <label>Tanggal Check-in Baru</label>
+                                                        <input type="date" name="checkin_baru" class="form-control" value="{{ $p['check_in'] }}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Tanggal Check-out Baru</label>
+                                                        <input type="date" name="checkout_baru" class="form-control" value="{{ $p['check_out'] }}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Catatan (Opsional)</label>
+                                                        <textarea name="catatan" class="form-control" rows="2" placeholder="Tulis alasan atau catatan jika perlu..."></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Total</label>
+                                                        <input type="number" name="total" class="form-control" value="{{ $p['total'] }}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Uang Masuk</label>
+                                                        <input type="number" name="uang_masuk" class="form-control" value="{{ $p['uang_masuk'] }}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Sisa</label>
+                                                        <input type="number" name="sisa" class="form-control" value="{{ $p['sisa'] }}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Pelunasan</label>
+                                                        <input type="date" name="pelunasan" class="form-control" value="{{ $p['pelunasan'] }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </tr>
                         @endforeach
                     @endforeach
