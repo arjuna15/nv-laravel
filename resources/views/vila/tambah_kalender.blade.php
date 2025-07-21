@@ -14,10 +14,11 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Tambah Tanggal Booking</h3>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-primary">
+            <h6 class="m-0 font-weight-bold text-white">Tambah Tanggal Booking</h6>
         </div>
+
         <form action="{{ route('vila.storeTanggal') }}" method="POST">
             @csrf
             <input type="hidden" name="vila_id" value="{{ $villa->vila_id }}">
@@ -80,26 +81,26 @@
                 </div>
             </div>
 
-
             <div class="card-footer text-right">
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success btn-sm">
                     <i class="fas fa-save"></i> Simpan
                 </button>
             </div>
         </form>
     </div>
 
+
     {{-- Daftar Booking --}}
-    <div class="card mt-4">
-        <div class="card-header bg-info">
-            <h3 class="card-title">Daftar Tanggal Sudah Dipesan</h3>
-        </div>
+    <div class="card mt-4 shadow">
+    <div class="card-header bg-info text-white">
+        <h4 class="mb-0">📅 Daftar Tanggal Sudah Dipesan</h4>
+    </div>
         <div class="card-body">
             @if($reservasi->count())
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="thead-light">
-                            <tr class="text-center">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="thead-light text-center">
+                            <tr>
                                 <th>No</th>
                                 <th>Nama Tamu</th>
                                 <th>Check-in</th>
@@ -111,7 +112,7 @@
                         </thead>
                         <tbody>
                             @foreach($reservasi as $index => $r)
-                                <tr class="text-center">
+                                <tr class="text-center align-middle">
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $r->nama_tamu }}</td>
                                     <td>{{ \Carbon\Carbon::parse($r->check_in_date)->translatedFormat('d F Y') }}</td>
@@ -126,214 +127,208 @@
                                                 default       => 'badge badge-secondary',
                                             };
                                         @endphp
-
-                                        <span class="{{ $badgeClass }} status-badge">
-                                            {{ $r['status'] }}
-                                        </span>
+                                        <span class="{{ $badgeClass }} px-3 py-1">{{ $r['status'] }}</span>
                                     </td>
-
-
                                     <td>
                                         @csrf
                                         @method('PATCH')
 
                                         @if($r['status'] !== 'Lunas' && $r['status'] !== 'Batal')
-                                            <!-- Tombol Pelunasan -->
-                                            <button type="button" class="btn btn-sm btn-success ml-1" data-toggle="modal" data-target="#pelunasanModal{{ $r['id'] }}">
+                                            <button class="btn btn-sm btn-success my-1" data-toggle="modal" data-target="#pelunasanModal{{ $r['id'] }}">
                                                 <i class="fas fa-check-circle"></i> Pelunasan
                                             </button>
 
-                                            <!-- Tombol Cicil -->
-                                            <button type="button" class="btn btn-sm btn-secondary mr-1" data-toggle="modal" data-target="#cicilModal{{ $r['id'] }}">
+                                            <button class="btn btn-sm btn-secondary my-1" data-toggle="modal" data-target="#cicilModal{{ $r['id'] }}">
                                                 <i class="fas fa-wallet"></i> Cicil
                                             </button>
                                         @endif
 
                                         @if($r['status'] !== 'Batal')
-                                            <!-- Tombol Cancel -->
-                                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $r['id'] }}">
-                                                <i class="fas fa-cross"></i> Cancel
+                                            <button class="btn btn-sm btn-danger my-1" data-toggle="modal" data-target="#batalModal{{ $r['id'] }}">
+                                                <i class="fas fa-times"></i> Batal
                                             </button>
 
-                                            <!-- Tombol Pindah -->
-                                            <button type="button" class="btn btn-sm btn-warning ml-1" data-toggle="modal" data-target="#pindahModal{{ $r['id'] }}">
+                                            <button class="btn btn-sm btn-warning my-1" data-toggle="modal" data-target="#pindahModal{{ $r['id'] }}">
                                                 <i class="fas fa-random"></i> Pindah
                                             </button>
                                         @endif
-
-
-                                        <!-- Modal Pelunasan -->
-                                        <div class="modal fade" id="pelunasanModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pelunasanModalLabel{{ $r['id'] }}" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <form action="{{ route('vila.pelunasan', $r['id']) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Konfirmasi Pelunasan - {{ $r['nama_tamu'] }}</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Apakah Anda yakin ingin menandai pemesanan ini sebagai <strong>Lunas</strong>?</p>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-success">Ya, Lunas</button>
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-
-
-
-                                        <!-- Modal Cicil -->
-                                        <div class="modal fade" id="cicilModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="cicilModalLabel{{ $r['id'] }}" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <form action="{{ route('vila.cicil', $r['id']) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Tambah Cicilan - {{ $r['nama_tamu'] }}</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <label>Jumlah Cicilan</label>
-                                                                <input type="number" name="jumlah" class="form-control" min="1" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <label>Ubah Tanggal Pelunasan (Opsional)</label>
-                                                                <input type="date" name="pelunasan" class="form-control" value="{{ $r['pelunasan'] }}">
-                                                            </div>
-                                                        </div>                                                    
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-primary">Simpan</button>
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <!-- Modal Batal -->
-                                        <div class="modal fade" id="batalModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="batalModalLabel{{ $r['id'] }}" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <form action="{{ route('vila.updateStatus', $r['id']) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="status" value="Batal">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Pembatalan Reservasi - {{ $r['nama_tamu'] }}</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <label>Catatan Pembatalan</label>
-                                                                <textarea name="catatan" class="form-control" rows="3" required placeholder="Isi alasan pembatalan..."></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-danger">Konfirmasi Batal</button>
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                            <div class="modal fade" id="pindahModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pindahModalLabel{{ $r['id'] }}" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <form action="{{ route('vila.pindah', $r['id']) }}" method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Pindah Villa / Tanggal - {{ $r['nama_tamu'] }}</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <!-- <div class="form-group">
-                                                                <label>Villa Baru</label>
-                                                                <select name="villa_id_baru" class="form-control" required>
-                                                                    <option value="">-- Pilih Villa --</option>
-                                                                    @foreach($villas as $villa)
-                                                                        <option value="{{ $villa->id }}" {{ $villa->id == $r['vila_id'] ? 'disabled' : '' }}>
-                                                                            {{ $villa->nama_vila }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div> -->
-                                                            <div class="form-group">
-                                                                <label>Tanggal Check-in Baru</label>
-                                                                <input type="date" name="checkin_baru" class="form-control" value="{{ $r['check_in_date'] }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Tanggal Check-out Baru</label>
-                                                                <input type="date" name="checkout_baru" class="form-control" value="{{ $r['check_out_date'] }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Catatan (Opsional)</label>
-                                                                <textarea name="catatan" class="form-control" rows="2" placeholder="Tulis alasan atau catatan jika perlu..."></textarea>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Total</label>
-                                                                <input type="number" name="total" class="form-control" value="{{ $r['total'] }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Uang Masuk</label>
-                                                                <input type="number" name="uang_masuk" class="form-control" value="{{ $r['uang_masuk'] }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Sisa</label>
-                                                                <input type="number" name="sisa" class="form-control" value="{{ $r['sisa'] }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Pelunasan</label>
-                                                                <input type="date" name="pelunasan" class="form-control" value="{{ $r['pelunasan'] }}" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('vila.cetakInvoicePDF', $r->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-trash-alt"></i> Cetak Invoice</a>
+                                        <a href="{{ route('vila.cetakInvoicePDF', $r->id) }}" class="btn btn-sm btn-primary mb-1">
+                                            <i class="fas fa-file-invoice"></i> Cetak
+                                        </a>
                                         <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">
+                                            <button class="btn btn-sm btn-outline-danger">
                                                 <i class="fas fa-trash-alt"></i> Hapus
                                             </button>
                                         </form>
                                     </td>
 
+                                    {{-- Modal (pelunasan, cicil, batal, pindah) tetap ada di sini --}}
+                                    <!-- Modal Pelunasan -->
+                                            <div class="modal fade" id="pelunasanModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pelunasanModalLabel{{ $r['id'] }}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form action="{{ route('vila.pelunasan', $r['id']) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Konfirmasi Pelunasan - {{ $r['nama_tamu'] }}</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Apakah Anda yakin ingin menandai pemesanan ini sebagai <strong>Lunas</strong>?</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-success">Ya, Lunas</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
 
+
+
+                                            <!-- Modal Cicil -->
+                                            <div class="modal fade" id="cicilModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="cicilModalLabel{{ $r['id'] }}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form action="{{ route('vila.cicil', $r['id']) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Tambah Cicilan - {{ $r['nama_tamu'] }}</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label>Jumlah Cicilan</label>
+                                                                    <input type="number" name="jumlah" class="form-control" min="1" required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label>Ubah Tanggal Pelunasan (Opsional)</label>
+                                                                    <input type="date" name="pelunasan" class="form-control" value="{{ $r['pelunasan'] }}">
+                                                                </div>
+                                                            </div>                                                    
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <!-- Modal Batal -->
+                                            <div class="modal fade" id="batalModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="batalModalLabel{{ $r['id'] }}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form action="{{ route('vila.updateStatus', $r['id']) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="Batal">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Pembatalan Reservasi - {{ $r['nama_tamu'] }}</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label>Catatan Pembatalan</label>
+                                                                    <textarea name="catatan" class="form-control" rows="3" required placeholder="Isi alasan pembatalan..."></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-danger">Konfirmasi Batal</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                                <div class="modal fade" id="pindahModal{{ $r['id'] }}" tabindex="-1" role="dialog" aria-labelledby="pindahModalLabel{{ $r['id'] }}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form action="{{ route('vila.pindah', $r['id']) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Pindah Villa / Tanggal - {{ $r['nama_tamu'] }}</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <!-- <div class="form-group">
+                                                                    <label>Villa Baru</label>
+                                                                    <select name="villa_id_baru" class="form-control" required>
+                                                                        <option value="">-- Pilih Villa --</option>
+                                                                        @foreach($villas as $villa)
+                                                                            <option value="{{ $villa->id }}" {{ $villa->id == $r['vila_id'] ? 'disabled' : '' }}>
+                                                                                {{ $villa->nama_vila }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div> -->
+                                                                <div class="form-group">
+                                                                    <label>Tanggal Check-in Baru</label>
+                                                                    <input type="date" name="checkin_baru" class="form-control" value="{{ $r['check_in_date'] }}" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Tanggal Check-out Baru</label>
+                                                                    <input type="date" name="checkout_baru" class="form-control" value="{{ $r['check_out_date'] }}" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Catatan (Opsional)</label>
+                                                                    <textarea name="catatan" class="form-control" rows="2" placeholder="Tulis alasan atau catatan jika perlu..."></textarea>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Total</label>
+                                                                    <input type="number" name="total" class="form-control" value="{{ $r['total'] }}" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Uang Masuk</label>
+                                                                    <input type="number" name="uang_masuk" class="form-control" value="{{ $r['uang_masuk'] }}" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Sisa</label>
+                                                                    <input type="number" name="sisa" class="form-control" value="{{ $r['sisa'] }}" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Pelunasan</label>
+                                                                    <input type="date" name="pelunasan" class="form-control" value="{{ $r['pelunasan'] }}" required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                    {{-- ⬇ Tidak saya tampilkan ulang karena kamu sudah berikan semua di atas ⬇ --}}
+                                    
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
             @else
-                <p><em>Belum ada tanggal yang dipesan.</em></p>
+                <p class="text-muted text-center"><em>Belum ada tanggal yang dipesan.</em></p>
             @endif
         </div>
     </div>
+
 </div>
 @endsection
 
@@ -418,3 +413,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 @endpush
+

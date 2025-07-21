@@ -23,22 +23,22 @@ class SuperAdminController extends Controller
 {
     $villa = Vila::findOrFail($id);
     $villas = Vila::all();
-
     $reservasi = Reservasi::where('vila_id', $id)->get();
-
     $totalBooking = $reservasi->count();
 
-    // Ambil tanggal dari awal sampai akhir bulan saat ini
-    $startOfMonth = Carbon::now()->startOfMonth();
-    $endOfMonth = Carbon::now()->endOfMonth();
-    $period = CarbonPeriod::create($startOfMonth, $endOfMonth);
+    // Ambil bulan dari query string, default ke bulan sekarang
+    $bulanString = request('month', now()->format('Y-m'));
+    $bulan = \Carbon\Carbon::parse($bulanString);
 
-    // Kelompokkan reservasi berdasarkan tanggal check-in
+    // Ambil tanggal dari awal sampai akhir bulan yg dipilih
+    $startOfMonth = $bulan->copy()->startOfMonth();
+    $endOfMonth = $bulan->copy()->endOfMonth();
+    $period = \Carbon\CarbonPeriod::create($startOfMonth, $endOfMonth);
+
     $reservasiByDate = $reservasi->groupBy(function ($item) {
-        return Carbon::parse($item->check_in_date)->format('Y-m-d');
+        return \Carbon\Carbon::parse($item->check_in_date)->format('Y-m-d');
     });
 
-    // Buat array tanggal lengkap
     $calendarData = [];
     foreach ($period as $date) {
         $formatted = $date->format('Y-m-d');
@@ -53,8 +53,9 @@ class SuperAdminController extends Controller
         'villas',
         'calendarData',
         'totalBooking'
-    ));
+    ))->with('bulan', $bulan); // ← agar Blade bisa akses $bulan untuk navigasi
 }
+
 
 
     public function dataVilla()

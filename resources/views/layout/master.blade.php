@@ -1,9 +1,23 @@
-@include('layout.header')
+<!DOCTYPE html>
+<html lang="en">
+    @include('layout.header')
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        @include('layout.sidebar')
 
-@include('layout.navbar')
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                @include('layout.navbar')
 
-@include('layout.sidebar')
-
-@include('layout.content')
-
-@include('layout.footer')
+                <!-- Main Content -->
+                <div class="container-fluid">
+                    @yield('content')
+                </div>
+            </div>
+            @include('layout.footer')
+        </div>
+    </div>
+</body>
+</html>

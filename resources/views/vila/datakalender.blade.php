@@ -1,227 +1,173 @@
 @extends('layout.master')
 
 @section('content')
-<div class="container-fluid mt-3">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Data Bookingan Vila</h3>
-        </div>
+<div class="container-fluid mt-4">
 
+    <!-- Heading -->
+    <h1 class="h3 mb-4 text-gray-800">📋 Data Bookingan Vila</h1>
+
+    <!-- Card: Daftar Bookingan -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-primary">
+            <h6 class="m-0 font-weight-bold text-white">📌 Daftar Bookingan</h6>
+        </div>
         <div class="card-body">
-            {{-- Form Pencarian --}}
-            <form action="{{ route('vila.index') }}" method="GET" class="form-inline mb-3">
+
+            <!-- Form Pencarian -->
+            <form action="{{ route('vila.index') }}" method="GET" class="form-inline mb-4">
                 <div class="input-group w-50">
-                    <input type="text" name="search" class="form-control" placeholder="Cari Nama atau Lokasi" value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control bg-light border-0 small" placeholder="🔍 Cari Nama atau Lokasi" value="{{ request('search') }}">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-search"></i> Cari
+                            <i class="fas fa-search fa-sm"></i> Cari
                         </button>
                     </div>
                 </div>
             </form>
 
-            {{-- Tabel --}}
+            <!-- Table Booking -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped text-center">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>No</th>
+                            <th>ID Vila</th>
+                            <th>Nama Vila</th>
+                            <th>Jumlah Booking</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($villa as $index => $v)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $v['vila_id'] }}</td>
+                                <td>{{ $v['nama_vila'] }}</td>
+                                <td>
+                                    <span class="badge badge-info px-3 py-2">{{ $v['total_booking'] }} Booking</span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('vila.tambahTanggal', ['vila_id' => $v['vila_id']]) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-calendar-plus"></i> Cek
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Tamu Booking Hari Ini -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white py-3">
+            <h6 class="m-0 font-weight-bold">📅 Daftar Tamu Booking Hari Ini</h6>
+        </div>
+        <div class="card-body table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>ID Vila</th>
-                        <th>Nama Vila</th>
-                        <th>Jumlah Booking</th>
-                        <th style="width: 180px;">Aksi</th>
+                        <th>No Booking</th>
+                        <th>Nama Tamu</th>
+                        <th>Nama Villa</th>
+                        <th>Check-in</th>
+                        <th>Total</th>
+                        <th>Uang Masuk</th>
+                        <th>Sisa</th>
+                        <th>Pelunasan</th>
+                        <th>Catatan</th>
+                        <th>No HP</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($villa as $index => $villas)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $villas['vila_id'] }}</td>
-                            <td>{{ $villas['nama_vila'] }}</td>
-                            <td>
-                                <span class="badge badge-info">
-                                    {{ $villas['total_booking'] }} Booking
-                                </span>
-                            </td>
-
-
-                            <td>
-                                <a href="{{ route('vila.tambahTanggal', ['vila_id' => $villas['vila_id']]) }}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-calendar-plus"></i> CEK
-                                </a>
-                            </td>
-                        </tr>
+                    @foreach($villa as $v)
+                        @foreach($v['today_bookings'] as $b)
+                            <tr>
+                                <td>{{ $b['no'] }}</td>
+                                <td>{{ $b['nama_tamu'] }}</td>
+                                <td>{{ $v['nama_vila'] }}</td>
+                                <td>{{ \Carbon\Carbon::parse($b['check_in'])->translatedFormat('d F Y') }}</td>
+                                <td>Rp {{ number_format($b['total'], 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($b['uang_masuk'], 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($b['sisa'], 0, ',', '.') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($b['pelunasan'])->translatedFormat('d F Y') }}</td>
+                                <td>{{ $b['catatan'] }}</td>
+                                <td>{{ $b['no_hp'] }}</td>
+                            </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>
-            <div class="card mt-4">
-                <div class="card-header bg-info">
-                    <h3 class="card-title">Daftar Tamu Booking Hari Ini</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>No Booking</th>
-                                    <th>Nama Tamu</th>
-                                    <th>Nama Villa</th>
-                                    <th>Check-in</th>
-                                    <th>Total</th>
-                                    <th>Uang Masuk</th>
-                                    <th>Sisa</th>
-                                    <th>Pelunasan</th>
-                                    <th>Catatan</th>
-                                    <th>No HP</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($villa as $v)
-                                    @foreach($v['today_bookings'] as $b)
-                                        <tr>
-                                            <td>{{ $b['no'] }}</td>
-                                            <td>{{ $b['nama_tamu'] }}</td>
-                                            <td>{{ $v['nama_vila'] }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($b['check_in'])->translatedFormat('d F Y') }}</td>
-                                            <td>Rp {{ number_format($b['total'], 0, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($b['uang_masuk'], 0, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($b['sisa'], 0, ',', '.') }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($b['pelunasan'])->translatedFormat('d F Y') }}</td>
-                                            <td>{{ $b['catatan'] }}</td>
-                                            <td>{{ $b['no_hp'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-            <div class="card-header bg-warning">
-                <h3 class="card-title">Daftar Tamu Pelunasan Hari Ini</h3>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>No Booking</th>
-                                <th>Nama Tamu</th>
-                                <th>Nama Villa</th>
-                                <th>Check-in</th>
-                                <th>Sisa</th>
-                                <th>Pelunasan</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php $no = 1; @endphp
-                            @foreach($villa as $v)
-                                @foreach($v['unpaid_pelunasan'] as $p)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $p['no'] }}</td>
-                                        <td>{{ $p['nama_tamu'] }}</td>
-                                        <td>{{ $v['nama_vila'] }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($p['check_in'])->translatedFormat('d F Y') }}</td>
-                                        <td>Rp {{ number_format($p['sisa'], 0, ',', '.') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($p['pelunasan'])->translatedFormat('d F Y') }}</td>
-                                        <td>
-                                            <form method="POST" action="{{ route('vila.updateStatus', $p['id']) }}" class="d-flex align-items-center">
-                                                @csrf
-                                                @method('PATCH')
-                                                <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">                                                
-                                                    <option value="Belum Lunas" {{ $p['status'] == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
-                                                    <option value="Cicil" disabled {{ $p['status'] == 'Cicil' ? 'selected' : '' }}>Cicil</option>
-                                                    <option value="Lunas" {{ $p['status'] == 'Lunas' ? 'selected' : '' }}>Lunas</option>
-                                                    <option value="Batal" disabled {{ $p['status'] == 'Batal' ? 'selected' : '' }}>Cancel</option>
-                                                </select>
-                                                @if($p['status'] !== 'Batal')
-                                                <button type="button" class="btn btn-sm btn-secondary mr-1" data-toggle="modal" data-target="#cicilModal{{ $p['id'] }}">
-                                                    <i class="fas fa-wallet"></i> Cicil
-                                                </button>
-                                                @endif
-                                                <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $p['id'] }}">
-                                                    <i class="fas fa-cross"></i> Cancel
-                                                </button>
-                                            </form>
-
-                                            <!-- Modal Cicil -->
-                                            <div class="modal fade" id="cicilModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="cicilModalLabel{{ $p['id'] }}" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <form action="{{ route('vila.cicil', $p['id']) }}" method="POST">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title">Tambah Cicilan - {{ $p['nama_tamu'] }}</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-group">
-                                                                    <label>Jumlah Cicilan</label>
-                                                                    <input type="number" name="jumlah" class="form-control" min="1" required>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-group">
-                                                                    <label>Ubah Tanggal Pelunasan (Opsional)</label>
-                                                                    <input type="date" name="pelunasan" class="form-control" value="{{ $p['pelunasan'] }}">
-                                                                </div>
-                                                            </div>                                                    
-                                                            <div class="modal-footer">
-                                                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                            <!-- Modal Batal -->
-                                            <div class="modal fade" id="batalModal{{ $p['id'] }}" tabindex="-1" role="dialog" aria-labelledby="batalModalLabel{{ $p['id'] }}" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <form action="{{ route('vila.updateStatus', $p['id']) }}" method="POST">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <input type="hidden" name="status" value="Batal">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title">Pembatalan Reservasi - {{ $p['nama_tamu'] }}</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-group">
-                                                                    <label>Catatan Pembatalan</label>
-                                                                    <textarea name="catatan" class="form-control" rows="3" required placeholder="Isi alasan pembatalan..."></textarea>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="submit" class="btn btn-danger">Konfirmasi Batal</button>
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-            {{-- Pagination --}}
-            {{-- Tambahkan jika pakai pagination --}}
-            {{-- {{ $villa->links() }} --}}
         </div>
     </div>
+
+    <!-- Card: Pelunasan Hari Ini -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-warning text-white py-3">
+            <h6 class="m-0 font-weight-bold">💰 Daftar Tamu Pelunasan Hari Ini</h6>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>No</th>
+                        <th>No Booking</th>
+                        <th>Nama Tamu</th>
+                        <th>Nama Villa</th>
+                        <th>Check-in</th>
+                        <th>Sisa</th>
+                        <th>Pelunasan</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $no = 1; @endphp
+                    @foreach($villa as $v)
+                        @foreach($v['unpaid_pelunasan'] as $p)
+                            <tr>
+                                <td>{{ $no++ }}</td>
+                                <td>{{ $p['no'] }}</td>
+                                <td>{{ $p['nama_tamu'] }}</td>
+                                <td>{{ $v['nama_vila'] }}</td>
+                                <td>{{ \Carbon\Carbon::parse($p['check_in'])->translatedFormat('d F Y') }}</td>
+                                <td>Rp {{ number_format($p['sisa'], 0, ',', '.') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($p['pelunasan'])->translatedFormat('d F Y') }}</td>
+                                <td>
+                                    <form method="POST" action="{{ route('vila.updateStatus', $p['id']) }}" class="d-flex align-items-center">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">                                                
+                                            <option value="Belum Lunas" {{ $p['status'] == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
+                                            <option value="Cicil" disabled {{ $p['status'] == 'Cicil' ? 'selected' : '' }}>Cicil</option>
+                                            <option value="Lunas" {{ $p['status'] == 'Lunas' ? 'selected' : '' }}>Lunas</option>
+                                            <option value="Batal" disabled {{ $p['status'] == 'Batal' ? 'selected' : '' }}>Batal</option>
+                                        </select>
+
+                                        @if($p['status'] !== 'Batal')
+                                        <button type="button" class="btn btn-sm btn-secondary mr-1" data-toggle="modal" data-target="#cicilModal{{ $p['id'] }}">
+                                            <i class="fas fa-wallet"></i>
+                                        </button>
+                                        @endif
+
+                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#batalModal{{ $p['id'] }}">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Modal Cicil -->
+                                    @include('vila.modal_cicil', ['p' => $p])
+
+                                    <!-- Modal Batal -->
+                                    @include('vila.modal_batal', ['p' => $p])
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 @endsection
