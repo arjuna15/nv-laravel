@@ -12,81 +12,90 @@
 
 </style>
 
+@section('title', 'Detail Tanggal Booking')
+
 @section('content')
-<div class="container-fluid mt-3">
-    {{-- Daftar Booking --}}
-    @foreach($reservasiPerBulan as $bulan => $reservasiBulan)
-        <div class="card mt-4">
-            <div class="card-header bg-info">
-                <h4 class="card-title mb-0">Reservasi Bulan: {{ $bulan }}</h4>
-            </div>
-            <div class="card-body">
-                @if($reservasiBulan->count())
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="thead-light text-center">
-                                <tr>
-                                    <th>No Booking</th>
-                                    <th>Nama Tamu</th>
-                                    <th>Check-in</th>
-                                    <th>Total</th>
-                                    <th>Uang Masuk</th>
-                                    <th>Sisa</th>
-                                    <th>Pelunasan</th>
-                                    <th>Catatan</th>
-                                    <th>No HP</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
+<div class="card mt-4">
+    <div class="card-header bg-info">
+        <h4 class="card-title mb-0">Reservasi Bulan: {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light text-center">
+                    <tr>
+                        <th>No Booking</th>
+                        <th>Nama Tamu</th>
+                        <th>Tanggal</th>
+                        <th>Total</th>
+                        <th>Uang Masuk</th>
+                        <th>Sisa</th>
+                        <th>Pelunasan</th>
+                        <th>Catatan</th>
+                        <th>No HP</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($calendarData as $item)
+                        @php
+                            $tgl = \Carbon\Carbon::parse($item['tanggal'])->translatedFormat('d');
+                            $data = $item['data'];
+                        @endphp
+
+                        @if ($data->count())
+                            @foreach ($data as $r)
+                                <tr class="text-center">
+                                    <td>{{ $r['no'] }}</td>
+                                    <td>{{ $r['nama_tamu'] }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($r['check_in_date'])->translatedFormat('d F Y') }}</td>
+                                    <td>Rp {{ number_format($r['total'], 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($r['uang_masuk'], 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($r['sisa'], 0, ',', '.') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($r['pelunasan'])->translatedFormat('d F Y') }}</td>
+                                    <td>{{ $r['catatan'] }}</td>
+                                    <td>{{ $r['no_hp'] }}</td>
+                                    <td>
+                                        @php
+                                            $badgeClass = match($r['status']) {
+                                                'Belum Lunas' => 'badge badge-warning',
+                                                'Cicil'       => 'badge badge-info',
+                                                'Lunas'       => 'badge badge-success',
+                                                'Batal'       => 'badge badge-danger',
+                                                default       => 'badge badge-secondary',
+                                            };
+                                        @endphp
+                                        <span class="{{ $badgeClass }}">{{ $r['status'] }}</span>
+                                    </td>
+                                    <td>
+                                        <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash-alt"></i> Hapus
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($reservasiBulan as $r)
-                                    <tr class="text-center">
-                                        <td>{{ $r['no'] }}</td>
-                                        <td>{{ $r['nama_tamu'] }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($r->check_in_date)->translatedFormat('d F Y') }}</td>
-                                        <td>Rp {{ number_format($r['total'], 0, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($r['uang_masuk'], 0, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($r['sisa'], 0, ',', '.') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($r['pelunasan'])->translatedFormat('d F Y') }}</td>
-                                        <td>{{ $r['catatan'] }}</td>
-                                        <td>{{ $r['no_hp'] }}</td>
-                                        <td>
-                                            @php
-                                                $badgeClass = match($r['status']) {
-                                                    'Belum Lunas' => 'badge badge-warning',
-                                                    'Cicil'       => 'badge badge-info',
-                                                    'Lunas'       => 'badge badge-success',
-                                                    'Batal'       => 'badge badge-danger',
-                                                    default       => 'badge badge-secondary',
-                                                };
-                                            @endphp
-                                            <span class="{{ $badgeClass }} status-badge">{{ $r['status'] }}</span>
-                                        </td>
-                                        <td>
-                                            <form action="{{ route('vila.destroyTanggal', $r->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-trash-alt"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <p class="text-muted">Belum ada reservasi untuk bulan ini.</p>
-                @endif
-            </div>
+                            @endforeach
+                        @else
+                            <tr class="text-center text-muted">
+                                <td>{{ $tgl }}</td>
+                                <td colspan="10"><em>Tidak ada reservasi</em></td>
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    @endforeach
+    </div>
 </div>
 @endsection
 
+
 @push('scripts')
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const checkInInput = document.getElementById('check_in_date');

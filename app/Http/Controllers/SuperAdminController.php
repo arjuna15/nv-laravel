@@ -13,37 +13,48 @@ use Intervention\Image\Facades\Image as ImageManager;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 
 class SuperAdminController extends Controller
 {
 
     public function detailVilla($id)
-    {
-        $villa = Vila::getById($id);
-        $villas = Vila::all();
+{
+    $villa = Vila::findOrFail($id);
+    $villas = Vila::all();
 
-        // Ambil semua reservasi untuk vila ini, tapi hanya yang check-in dari bulan ini ke depan
-        $reservasi = Reservasi::where('vila_id', $id)
-            ->whereDate('check_in_date', '>=', Carbon::now()->startOfMonth())
-            ->orderBy('check_in_date', 'asc')
-            ->get();
+    $reservasi = Reservasi::where('vila_id', $id)->get();
 
-        // Kelompokkan reservasi berdasarkan bulan
-        $reservasiPerBulan = $reservasi->groupBy(function ($item) {
-            return Carbon::parse($item->check_in_date)->translatedFormat('F Y');
-        });
+    $totalBooking = $reservasi->count();
 
-        // Hitung total semua booking (semua data yang diambil, bukan yang dibatalkan)
-        $totalBooking = $reservasi->count();
+    // Ambil tanggal dari awal sampai akhir bulan saat ini
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth = Carbon::now()->endOfMonth();
+    $period = CarbonPeriod::create($startOfMonth, $endOfMonth);
 
-        return view('superadmin.detailtanggal', compact(
-            'villa',
-            'villas',
-            'reservasiPerBulan',
-            'totalBooking'
-        ));
+    // Kelompokkan reservasi berdasarkan tanggal check-in
+    $reservasiByDate = $reservasi->groupBy(function ($item) {
+        return Carbon::parse($item->check_in_date)->format('Y-m-d');
+    });
+
+    // Buat array tanggal lengkap
+    $calendarData = [];
+    foreach ($period as $date) {
+        $formatted = $date->format('Y-m-d');
+        $calendarData[] = [
+            'tanggal' => $formatted,
+            'data' => $reservasiByDate->get($formatted, collect()),
+        ];
     }
+
+    return view('superadmin.detailtanggal', compact(
+        'villa',
+        'villas',
+        'calendarData',
+        'totalBooking'
+    ));
+}
 
 
     public function dataVilla()
