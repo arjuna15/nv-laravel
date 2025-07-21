@@ -126,12 +126,22 @@ class UserController extends Controller
         }
 
         // Ambil reservasi via method byVilla
-        $reserv = Reservasi::byVilla($villaId)
-        ->pluck('check_in_date')
-        ->map(function ($date) {
-            return Carbon::parse($date)->toDateString();
-        })
-        ->toArray();
+        $reservasi = Reservasi::byVilla($villaId)
+            ->where('status', '!=', 'Batal')
+            ->get();
+
+        $reserv = [];
+
+        foreach ($reservasi as $item) {
+            $start = Carbon::parse($item->check_in_date);
+            $end = Carbon::parse($item->check_out_date);
+
+            while ($start < $end) {
+                $reserv[] = $start->toDateString();
+                $start->addDay();
+            }
+        }
+
         $images = is_string($dataVilla->gambar) ? json_decode($dataVilla->gambar, true) : $dataVilla->gambar;
         $dets = is_string($dataVilla->detail) ? json_decode($dataVilla->detail, true) : $dataVilla->detail;
         $facils = is_string($dataVilla->fasilitas_vila) ? json_decode($dataVilla->fasilitas_vila, true) : $dataVilla->fasilitas_vila;

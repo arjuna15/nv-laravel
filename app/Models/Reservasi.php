@@ -22,8 +22,7 @@ class Reservasi extends Model
     public static function byVilla($villaId)
     {
         return self::where('vila_id', $villaId)
-                   ->where('check_in_date', '>=', now()->toDateString())
-                   ->get();
+                   ->where('check_in_date', '>=', now()->toDateString());
     }
 
     public function vila()

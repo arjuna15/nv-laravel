@@ -513,9 +513,11 @@ class VilaController extends Controller
                 'park'  => $detailVilla['jumlah_parkir_mobil'] ?? '-',
             ];
 
-            $reservasi = Reservasi::where('vila_id', $villa->vila_id)->get();
-            $reservDate = $reservasi->pluck('check_in_date')->toArray();
+            $reservasi = Reservasi::where('vila_id', $villa->vila_id)
+                ->where('status', '!=', 'Batal') // Tambahkan ini
+                ->get();
 
+            $reservDate = $reservasi->pluck('check_in_date')->toArray();
 
             $vgadata[$villa->vila_id] = [
                 'image' => $villa->images_vila,
@@ -529,6 +531,7 @@ class VilaController extends Controller
             'vgadata' => $vgadata,
         ]);
     }
+
 
     public function show($encodedData)
     {
