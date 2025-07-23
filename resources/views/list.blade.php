@@ -116,7 +116,7 @@
 
                                     <div class="col-md-6">
                                         <div class="room_item-1">
-                                            <h2>{{ $villa->nama_villa }}</h2>
+                                            <h2>{{ $villa->nama_vila }}</h2>
                                             <div class="img">
                                                 <a href="{{ url('detail/' . $villa->vila_id . '/' . Str::slug($villa->nama_villa)) }}">
                                                     @php

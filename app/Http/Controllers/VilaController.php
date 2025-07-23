@@ -74,17 +74,21 @@ class VilaController extends Controller
         ])->onlyInput('username');
     }
 
-
     public function index(Request $request)
     {
         $query = Vila::query();
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $query->where('nama_vila', 'like', '%' . $request->search . '%')
-                ->orWhere('lokasi_vila', 'like', '%' . $request->search . '%');
+                ->orWhere('lokasi_vila', 'lik   e', '%' . $request->search . '%');
+        } else {
+            // kalau search kosong, redirect ke /vila tanpa ?search
+            if ($request->has('search')) {
+                return redirect()->route('vila.index');
+            }
         }
 
-        $vilas = $query->orderBy('vila_id', 'desc')->paginate(5);
+        $vilas = $query->orderBy('vila_id', 'asc')->get();
 
         return view('vila.index', compact('vilas'));
     }
@@ -109,6 +113,8 @@ class VilaController extends Controller
             'harga_villa.minggu_kamis' => 'required|numeric',
             'harga_villa.jumat' => 'required|numeric',
             'harga_villa.sabtu' => 'required|numeric',
+
+            'is_owner_villa' => 'required|in:yes,no', // ✅ validasi tambahan
 
             'gambar' => 'required|array|min:1',
             'gambar.*' => 'image|mimes:jpg,jpeg,png,webp|max:50240',
@@ -140,7 +146,6 @@ class VilaController extends Controller
                     \Log::error("Gagal convert: " . $e->getMessage());
                     return back()->withErrors(['gambar' => 'Gagal memproses gambar.'])->withInput();
                 }
-
             }
         }
 
@@ -154,13 +159,12 @@ class VilaController extends Controller
             'fasilitas_vila' => $request->input('fasilitas_vila'),
             'harga_villa' => $request->input('harga_villa'),
             'gambar' => $gambar, // sudah array
+            'is_owner_villa' => $request->is_owner_villa, // ✅ simpan status owner
             'status_villa' => 1,
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil disimpan.');
     }
-
-
 
     public function edit($vila_id)
     {
@@ -175,10 +179,11 @@ class VilaController extends Controller
         $request->validate([
             'nama_vila' => 'required',
             'lokasi_vila' => 'required',
-            'kapasitas_vila' => 'required',
-            'detail' => 'required',
-            'harga_villa' => 'required',
-            'gambar.*' => 'image|mimes:jpg,jpeg,png|max:50240',
+            'kapasitas_vila' => 'required|integer',
+            'detail' => 'required|array',
+            'harga_villa' => 'required|array',
+            'is_owner_villa' => 'required|in:yes,no', // ✅ Validasi is_owner_villa
+            'gambar.*' => 'image|mimes:jpg,jpeg,png,webp|max:50240',
         ]);
 
         $gambarLama = json_decode($vila->gambar, true) ?? [];
@@ -202,14 +207,14 @@ class VilaController extends Controller
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $ext = $file->getClientOriginalExtension();
-                $fileName = Str::slug($originalName) . '-' . uniqid() . '.' . $ext;
+                $originalName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $originalName);
+                $fileName = $originalName . '_' . uniqid() . '.webp';
 
                 $savePath = public_path('images/' . $fileName);
 
                 try {
                     ImageManager::make($file->getRealPath())
-                        ->encode('jpg', 85)
+                        ->encode('webp', 85)
                         ->save($savePath);
 
                     $gambarLama[] = ['image' => $fileName];
@@ -234,10 +239,12 @@ class VilaController extends Controller
             'fasilitas_vila' => $request->fasilitas_vila,
             'harga_villa' => $request->harga_villa,
             'gambar' => json_encode(array_values($gambarLama)),
+            'is_owner_villa' => $request->is_owner_villa, // ✅ Update status owner
         ]);
 
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil diupdate.');
     }
+
 
 
     public function destroy($vila_id)
@@ -259,17 +266,21 @@ class VilaController extends Controller
         return redirect()->route('vila.index')->with('success', 'Data vila berhasil dihapus.');
     }
 
-    public function calendarVilla()
+    public function calendarVilla(Request $request)
     {
-        $datas = Vila::getAll();
-        $vgadata = [];
         $today = Carbon::today()->toDateString();
+
+        // Ambil data vila dengan paginasi 10 per halaman
+        $datas = Vila::orderBy('vila_id', 'asc')->get();
+
+        $vgadata = [];
 
         foreach ($datas as $datad) {
             $allBooking = Reservasi::where('vila_id', $datad->vila_id)->get();
 
             $todayBooking = Reservasi::where('vila_id', $datad->vila_id)
                 ->whereDate('created_at', $today)
+                ->where('input_by_admin', true) // ✅ hanya booking asli
                 ->get();
 
             $todayFormatted = [];
@@ -289,12 +300,12 @@ class VilaController extends Controller
                 ];
             }
 
-            // ✅ Inisialisasi di sini
             $unpaidFormatted = [];
 
             $unpaid = Reservasi::where('vila_id', $datad->vila_id)
                 ->whereIn('status', ['Belum Lunas', 'Cicil'])
                 ->whereDate('pelunasan', '<=', $today)
+                ->where('input_by_admin', true) // ✅ hanya booking asli
                 ->orderBy('pelunasan', 'asc')
                 ->get();
 
@@ -324,8 +335,32 @@ class VilaController extends Controller
             ];
         }
 
-        return view('vila.datakalender', ['villa' => $vgadata]);
+        return view('vila.datakalender', [
+            'villa' => $vgadata,
+            'datas' => $datas // kirim paginated vila
+        ]);
     }
+
+
+
+    public function listTanggal()
+    {
+        $villas = Vila::all(); // Ambil semua vila
+        $datas = [];
+
+        foreach ($villas as $v) {
+            $totalBooking = Reservasi::where('vila_id', $v->vila_id)->count();
+
+            $datas[] = [
+                'vila_id' => $v->vila_id,
+                'nama_vila' => $v->nama_vila,
+                'total_booking' => $totalBooking,
+            ];
+        }
+
+        return view('vila.listtanggal', compact('datas'));
+    }
+
 
 
     public function updateStatus(Request $request, $id)
@@ -471,24 +506,50 @@ class VilaController extends Controller
         return view('vila.tambah_kalender', compact('villa', 'reservasi', 'villas'));
     }
 
+    public function tanggalOnly($id)
+    {
+        $villa = Vila::getById($id);
+        $reservasi = Reservasi::where('vila_id', $id)->orderBy('check_in_date', 'asc')->get();
 
-public function storeTanggal(Request $request)
-{
-    $data = $request->only([
-        'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
-        'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
-    ]);
+        Carbon::setLocale('id'); // Set locale ke Bahasa Indonesia
 
-    $reservasi = Reservasi::create($data); // <-- simpan
-
-    // 🔽 Panggil untuk kirim ke Google Form
-    $this->sendToGoogleForm($reservasi);
-
-    // 🔽 Redirect langsung ke PDF download
-    return redirect()->route('vila.cetakInvoicePDF', ['id' => $reservasi->id]);
-}
+        return view('vila.tambahtanggalonly', compact('villa', 'reservasi'));
+    }
 
 
+    public function storeTanggal(Request $request)
+    {
+        $data = $request->only([
+            'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
+            'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
+        ]);
+
+        $reservasi = Reservasi::create($data); // <-- simpan
+
+        // 🔽 Panggil untuk kirim ke Google Form
+        $this->sendToGoogleForm($reservasi);
+
+        // 🔽 Redirect langsung ke PDF download
+        return redirect()->route('vila.cetakInvoicePDF', ['id' => $reservasi->id]);
+    }
+
+    public function storeTanggalOnly(Request $request)
+    {
+        $vilaId = $request->input('vila_id');
+        $checkIns = $request->input('check_in_date');
+        $checkOuts = $request->input('check_out_date');
+
+        for ($i = 0; $i < count($checkIns); $i++) {
+            Reservasi::create([
+                'vila_id' => $vilaId,
+                'check_in_date' => $checkIns[$i],
+                'check_out_date' => $checkOuts[$i],
+                'input_by_admin' => 'false'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
+    }
 
 
     public function destroyTanggal($id)
@@ -498,6 +559,16 @@ public function storeTanggal(Request $request)
 
         return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
     }
+
+    public function destroyTanggalOnly($id)
+    {
+        $reservasi = Reservasi::findOrFail($id);
+        $villa_id = $reservasi->vila_id;
+        $reservasi->delete();
+
+        return redirect()->back()->with('success', 'Reservasi berhasil dihapus.');
+    }
+
 
     public function calendar()
     {

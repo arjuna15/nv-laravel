@@ -20,47 +20,48 @@ class SuperAdminController extends Controller
 {
 
     public function detailVilla($id)
-{
-    $villa = Vila::findOrFail($id);
-    $villas = Vila::all();
-    $reservasi = Reservasi::where('vila_id', $id)->get();
-    $totalBooking = $reservasi->count();
+    {
+        $villa = Vila::findOrFail($id);
+        $villas = Vila::all();
+        $reservasi = Reservasi::where('vila_id', $id)->get();
+        $totalBooking = $reservasi->count();
 
-    // Ambil bulan dari query string, default ke bulan sekarang
-    $bulanString = request('month', now()->format('Y-m'));
-    $bulan = \Carbon\Carbon::parse($bulanString);
+        // Ambil bulan dari query string, default ke bulan sekarang
+        $bulanString = request('month', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::parse($bulanString);
 
-    // Ambil tanggal dari awal sampai akhir bulan yg dipilih
-    $startOfMonth = $bulan->copy()->startOfMonth();
-    $endOfMonth = $bulan->copy()->endOfMonth();
-    $period = \Carbon\CarbonPeriod::create($startOfMonth, $endOfMonth);
+        // Ambil tanggal dari awal sampai akhir bulan yg dipilih
+        $startOfMonth = $bulan->copy()->startOfMonth();
+        $endOfMonth = $bulan->copy()->endOfMonth();
+        $period = \Carbon\CarbonPeriod::create($startOfMonth, $endOfMonth);
 
-    $reservasiByDate = $reservasi->groupBy(function ($item) {
-        return \Carbon\Carbon::parse($item->check_in_date)->format('Y-m-d');
-    });
+        $reservasiByDate = $reservasi->groupBy(function ($item) {
+            return \Carbon\Carbon::parse($item->check_in_date)->format('Y-m-d');
+        });
 
-    $calendarData = [];
-    foreach ($period as $date) {
-        $formatted = $date->format('Y-m-d');
-        $calendarData[] = [
-            'tanggal' => $formatted,
-            'data' => $reservasiByDate->get($formatted, collect()),
-        ];
+        $calendarData = [];
+        foreach ($period as $date) {
+            $formatted = $date->format('Y-m-d');
+            $calendarData[] = [
+                'tanggal' => $formatted,
+                'data' => $reservasiByDate->get($formatted, collect()),
+            ];
+        }
+
+        return view('superadmin.detailtanggal', compact(
+            'villa',
+            'villas',
+            'calendarData',
+            'totalBooking'
+        ))->with('bulan', $bulan); // ← agar Blade bisa akses $bulan untuk navigasi
     }
-
-    return view('superadmin.detailtanggal', compact(
-        'villa',
-        'villas',
-        'calendarData',
-        'totalBooking'
-    ))->with('bulan', $bulan); // ← agar Blade bisa akses $bulan untuk navigasi
-}
-
 
 
     public function dataVilla()
     {
-        $datas = Vila::getAll();
+        // Ambil hanya villa yang is_owner_villa == 'yes'
+        $datas = Vila::where('is_owner_villa', 'yes')->get();
+
         $totalUangMasuk = 0;
         $totalUangMasukBulanIni = 0;
         $today = \Carbon\Carbon::today();
@@ -122,6 +123,63 @@ class SuperAdminController extends Controller
             'monthly_summary' => $monthlySummary,
         ]);
     }
+
+
+    public function dataAdmin()
+    {
+        $today = \Carbon\Carbon::today();
+        $adminSummary = [];
+
+        // Ambil semua reservasi yang dibuat bulan ini
+        $bulanIniBookings = Reservasi::whereYear('created_at', $today->year)
+            ->whereMonth('created_at', $today->month)
+            ->get();
+
+        foreach ($bulanIniBookings as $booking) {
+            $admin = $booking->nama_admin;
+
+            // Lewati kalau nama_admin kosong
+            if (!$admin) continue;
+
+            if (!isset($adminSummary[$admin])) {
+                $adminSummary[$admin] = [
+                    'total_closing' => 0,
+                    'bonus_closing' => 0,
+                    'total_uang_masuk' => 0,
+                    'hari_closing' => [], // untuk hitung bonus per hari
+                ];
+            }
+
+            // Hitung total closing
+            $adminSummary[$admin]['total_closing'] += 1;
+
+            // Hitung total uang masuk
+            $adminSummary[$admin]['total_uang_masuk'] += $booking->uang_masuk;
+
+            // Hitung jumlah closing per hari
+            $tanggal = \Carbon\Carbon::parse($booking->created_at)->toDateString();
+            if (!isset($adminSummary[$admin]['hari_closing'][$tanggal])) {
+                $adminSummary[$admin]['hari_closing'][$tanggal] = 0;
+            }
+            $adminSummary[$admin]['hari_closing'][$tanggal] += 1;
+        }
+
+        // Hitung bonus closing (setiap hari dengan minimal 3 closing, jumlahkan semua di hari itu)
+        foreach ($adminSummary as $admin => &$summary) {
+            foreach ($summary['hari_closing'] as $jumlahPerHari) {
+                if ($jumlahPerHari >= 3) {
+                    $summary['bonus_closing'] += $jumlahPerHari; // jumlahkan semua closing hari itu
+                }
+            }
+            unset($summary['hari_closing']); // hapus biar nggak dikirim ke view
+        }
+
+        return view('superadmin.dataadmin', [
+            'admin_summary' => $adminSummary,
+        ]);
+    }
+
+
 
     public function index()
     {

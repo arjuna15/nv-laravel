@@ -145,7 +145,7 @@
 
                                         @if($r['status'] !== 'Batal')
                                             <button class="btn btn-sm btn-danger my-1" data-toggle="modal" data-target="#batalModal{{ $r['id'] }}">
-                                                <i class="fas fa-times"></i> Batal
+                                                <i class="fas fa-times"></i> Cancel
                                             </button>
 
                                             <button class="btn btn-sm btn-warning my-1" data-toggle="modal" data-target="#pindahModal{{ $r['id'] }}">

@@ -6,28 +6,33 @@
     <!-- Heading -->
     <h1 class="h3 mb-4 text-gray-800">📋 Data Bookingan Vila</h1>
 
-    <!-- Card: Daftar Bookingan -->
+
+    <!-- Table Booking -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-primary">
-            <h6 class="m-0 font-weight-bold text-white">📌 Daftar Bookingan</h6>
+            <h6 class="m-0 font-weight-bold text-white">
+                📌 Daftar Bookingan
+            </h6>
+        </div>
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div class="input-group w-50">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-control bg-light border-0 small shadow-sm" 
+                    placeholder="Cari Nama Vila..."
+                    autocomplete="off"
+                >
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search fa-sm"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
-
-            <!-- Form Pencarian -->
-            <form action="{{ route('vila.index') }}" method="GET" class="form-inline mb-4">
-                <div class="input-group w-50">
-                    <input type="text" name="search" class="form-control bg-light border-0 small" placeholder="🔍 Cari Nama atau Lokasi" value="{{ request('search') }}">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-search fa-sm"></i> Cari
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Table Booking -->
             <div class="table-responsive">
-                <table class="table table-bordered table-striped text-center">
+                <table class="table table-bordered table-hover text-center" id="villaTable">
                     <thead class="thead-light">
                         <tr>
                             <th>No</th>
@@ -37,17 +42,20 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="villaTableBody">
                         @foreach($villa as $index => $v)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $v['vila_id'] }}</td>
-                                <td>{{ $v['nama_vila'] }}</td>
+                                <td class="font-weight-bold text-primary">{{ $v['nama_vila'] }}</td>
                                 <td>
-                                    <span class="badge badge-info px-3 py-2">{{ $v['total_booking'] }} Booking</span>
+                                    <span class="badge badge-info px-3 py-2 shadow-sm">
+                                        {{ $v['total_booking'] }} Booking
+                                    </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('vila.tambahTanggal', ['vila_id' => $v['vila_id']]) }}" class="btn btn-sm btn-warning">
+                                    <a href="{{ route('vila.tambahTanggal', ['vila_id' => $v['vila_id']]) }}" 
+                                    class="btn btn-sm btn-warning shadow-sm">
                                         <i class="fas fa-calendar-plus"></i> Cek
                                     </a>
                                 </td>
@@ -56,6 +64,11 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Controls -->
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
         </div>
     </div>
 
@@ -306,3 +319,64 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        const table = document.getElementById('villaTable');
+        const tableBody = document.getElementById('villaTableBody');
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        const pagination = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderTable(filteredRows) {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            tableBody.innerHTML = '';
+            filteredRows.slice(start, end).forEach(row => {
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderPagination(filteredRows) {
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.classList.add('page-item');
+                if (i === currentPage) li.classList.add('active');
+                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                li.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderTable(filteredRows);
+                    renderPagination(filteredRows);
+                });
+                pagination.appendChild(li);
+            }
+        }
+
+        function filterRows() {
+            const query = searchInput.value.toLowerCase();
+            const filteredRows = rows.filter(row => {
+                const namaVila = row.cells[2].textContent.toLowerCase();
+                const lokasi = row.cells[2].textContent.toLowerCase(); // jika ada lokasi
+                return namaVila.includes(query) || lokasi.includes(query);
+            });
+            currentPage = 1; // reset ke halaman pertama
+            renderTable(filteredRows);
+            renderPagination(filteredRows);
+        }
+
+        // Initial render
+        filterRows();
+
+        // Search on input
+        searchInput.addEventListener('input', filterRows);
+    });
+</script>
+
+@endpush

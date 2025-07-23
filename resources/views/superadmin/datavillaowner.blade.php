@@ -47,7 +47,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $villas['vila_id'] }}</td>
-                                <td class="text-left">{{ $villas['nama_vila'] }}</td>
+                                <td>{{ $villas['nama_vila'] }}</td>
                                 <td>
                                     <span class="badge badge-info p-2">{{ $villas['total_booking'] }} Booking</span>
                                 </td>

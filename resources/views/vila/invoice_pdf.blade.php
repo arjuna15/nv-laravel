@@ -16,7 +16,10 @@
       margin: 0 auto;
       padding: 0;
       font-family: 'Montserrat', sans-serif !important;
-      background-color: #fdfdfc;
+      background-color: #ffffffff;
+      background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/paisley.png');
+      background-repeat: repeat;
+      background-size: auto;
       color: #002f6c;
       box-sizing: border-box;
     }
@@ -26,6 +29,8 @@
       margin: 0 auto;
       padding: 40px 30px 100px 30px;
       position: relative;
+      background-color: transparent;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     }
 
     .header-logo {
@@ -143,13 +148,12 @@
     </div>
 
     <div class="kepada">
-    <h4 style="margin-bottom:20px; font-family: 'Montserrat', sans-serif;">Kepada</h4>
-    <h4 style="font-family: 'Montserrat', sans-serif;">{{ strtoupper($reservasi->nama_tamu) }}</h4>
-    <h4 style="font-family: 'Montserrat', sans-serif;">
+      <h4 style="margin-bottom:20px;">Kepada</h4>
+      <h4>{{ strtoupper($reservasi->nama_tamu) }}</h4>
+      <h4>
         {{ $reservasi->status === 'Lunas' ? 'PELUNASAN' : 'DP' }} {{ strtoupper($villa->nama_vila) }}
-    </h4>
+      </h4>
     </div>
-
 
     <div class="table-wrapper">
       <table class="table">
@@ -164,11 +168,11 @@
         <tbody>
           <tr>
             <td>
-               {{ \Carbon\Carbon::parse($reservasi->check_in_date)->format('d M Y') }}<br>
+              {{ \Carbon\Carbon::parse($reservasi->check_in_date)->format('d M Y') }}<br>
               PUKUL 14:00
             </td>
             <td>
-               {{ \Carbon\Carbon::parse($reservasi->check_out_date)->format('d M Y') }}<br>
+              {{ \Carbon\Carbon::parse($reservasi->check_out_date)->format('d M Y') }}<br>
               PUKUL 12:00
             </td>
             <td>Rp {{ number_format($reservasi->total, 0, ',', '.') }}</td>
@@ -180,8 +184,7 @@
 
     <div class="total">
       TOTAL &nbsp;&nbsp; Rp {{ number_format($reservasi->uang_masuk, 0, ',', '.') }}
-    </div>
-
+    </div> 
 
     <div class="footer-section">
       <div class="footer-left">

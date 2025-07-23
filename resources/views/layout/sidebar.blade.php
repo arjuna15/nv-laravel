@@ -56,6 +56,12 @@
                 <span>Info Tanggal</span>
             </a>
         </li>
+                <li class="nav-item {{ Request::is('/calendar') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('listTanggal') }}">
+                <i class="far fa-fw fa-calendar-alt"></i>
+                <span>Tambah Tanggal Only</span>
+            </a>
+        </li>
             <!-- Divider -->
     <hr class="sidebar-divider">
 
@@ -94,6 +100,12 @@
             <a class="nav-link" href="{{ route('superadmin.index') }}">
                 <i class="fas fa-fw fa-users-cog"></i>
                 <span>Kelola User</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('dataAdmin') }}">
+                <i class="far fa-fw fa-calendar"></i>
+                <span>Data Admin</span>
             </a>
         </li>
             <!-- Divider -->

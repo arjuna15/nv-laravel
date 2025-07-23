@@ -45,10 +45,18 @@
                         <label>Lokasi Vila</label>
                         <input type="text" class="form-control" name="lokasi_vila" value="{{ old('lokasi_vila', $vila->lokasi_vila ?? '') }}" required>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-1">
                         <label>Kapasitas Vila</label>
                         <input type="number" class="form-control" name="kapasitas_vila" value="{{ old('kapasitas_vila', $vila->kapasitas_vila ?? '') }}" required>
                     </div>
+                    <div class="form-group col-md-1">
+                        <label>Villa Owner</label>
+                        <select name="is_owner_villa" class="form-control" required>
+                            <option value="yes" {{ old('is_owner_villa', $vila->is_owner_villa ?? '') == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{ old('is_owner_villa', $vila->is_owner_villa ?? '') == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+
                 </div>
 
                 <!-- Detail -->

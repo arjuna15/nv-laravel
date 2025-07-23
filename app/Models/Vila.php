@@ -22,7 +22,8 @@ class Vila extends Model
         'fasilitas_vila',
         'harga_villa',
         'gambar',
-        'status_villa'
+        'status_villa',
+        'is_owner_villa'
     ];
 
     protected $casts = [

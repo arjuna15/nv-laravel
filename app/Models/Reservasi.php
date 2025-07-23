@@ -15,7 +15,7 @@ class Reservasi extends Model
 
     protected $fillable = [
         'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
-        'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
+        'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status', 'nama_admin', 'input_by_admin'
     ];
 
 

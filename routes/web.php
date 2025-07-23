@@ -40,7 +40,11 @@ Route::middleware(['auth', 'isadmin'])->group(function () {
     Route::get('/calendar', [VilaController::class, 'calendarVilla'])->name('calendarVilla');
     Route::get('/tambah/{vila_id}', [VilaController::class, 'tambahTanggal'])->name('vila.tambahTanggal');
     Route::post('/tambah', [VilaController::class, 'storeTanggal'])->name('vila.storeTanggal');
+    Route::get('/listtanggal', [VilaController::class, 'listTanggal'])->name('listTanggal');
+    Route::get('/tanggalonly/{vila_id}', [VilaController::class, 'tanggalOnly'])->name('vila.tanggalOnly');
+    Route::post('/tanggalonly', [VilaController::class, 'storeTanggalOnly'])->name('vila.storeTanggalOnly');
     Route::delete('/destroy/{id}', [VilaController::class, 'destroyTanggal'])->name('vila.destroyTanggal');
+    Route::delete('/vila/hapus-tanggal/{id}', [VilaController::class, 'destroyTanggalOnly'])->name('vila.destroyTanggalOnly');
     Route::get('/infotanggal', [VilaController::class, 'calendar'])->name('vila.calendar');
     Route::get('/calendar/{encodedData}', [VilaController::class, 'show'])->name('calendar.show');
     Route::patch('/vila/update-status/{id}', [VilaController::class, 'updateStatus'])->name('vila.updateStatus');
@@ -61,5 +65,6 @@ Route::middleware(['auth', 'issuperadmin'])->group(function () {
     Route::get('/detailtanggal/{vila_id}', [SuperAdminController::class, 'detailVilla'])->name('detailVilla');
     Route::get('/datausers', [SuperAdminController::class, 'index'])->name('superadmin.index');
     Route::post('/datausers', [SuperAdminController::class, 'store'])->name('superadmin.store');
+    Route::get('/dataadmin', [SuperAdminController::class, 'dataAdmin'])->name('dataAdmin');
 });
 
