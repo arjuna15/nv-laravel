@@ -521,8 +521,12 @@ class VilaController extends Controller
     {
         $data = $request->only([
             'vila_id', 'no', 'nama_tamu', 'check_in_date', 'check_out_date',
-            'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status'
+            'total', 'uang_masuk', 'sisa', 'pelunasan', 'catatan', 'no_hp', 'status',
+            'nama_admin'
         ]);
+
+        // Tambahkan field baru di sini
+        $data['input_by_admin'] = true;
 
         $reservasi = Reservasi::create($data); // <-- simpan
 
@@ -532,6 +536,7 @@ class VilaController extends Controller
         // 🔽 Redirect langsung ke PDF download
         return redirect()->route('vila.cetakInvoicePDF', ['id' => $reservasi->id]);
     }
+
 
     public function storeTanggalOnly(Request $request)
     {

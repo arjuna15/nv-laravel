@@ -54,7 +54,7 @@
         $(".awe-calendar.from").datepicker("option", "onClose", function (selectedDate) {
             var newDate = new Date(selectedDate);
             newDate.setDate(newDate.getDate() + 1);
-            $(".awe-calendar.to").datepicker("option", "minDate", newDate).focus();
+            // $(".awe-calendar.to").datepicker("option", "minDate", newDate).focus();
         });
     }
 

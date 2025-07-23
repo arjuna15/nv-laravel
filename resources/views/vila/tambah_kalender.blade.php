@@ -67,9 +67,15 @@
                         <label for="pelunasan">Tanggal Pelunasan</label>
                         <input id="pelunasan" name="pelunasan" type="date" class="form-control" required>
                     </div>
-                    <div class="col-md-6">
-                        <label for="catatan">Catatan</label>
-                        <textarea id="catatan" name="catatan" class="form-control" rows="3"></textarea>
+                    <div class="col-md-3">
+                        <label for="nama_admin">Nama Admin</label>
+                        <select id="nama_admin" name="nama_admin" class="form-control" required>
+                            <option value="">-- Pilih Admin --</option>
+                            <option value="Junancok">Junancok</option>
+                            <option value="Siti Nur Ameliah">Siti Nur Ameliah</option>
+                            <option value="Syahrul">Syahrul</option>
+                            <option value="Ghafara">Ghafara</option>
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <label for="status">Status</label>
@@ -77,6 +83,10 @@
                             <option value="Belum Lunas">Belum Lunas</option>
                             <option value="Lunas">Lunas</option>
                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="catatan">Catatan</label>
+                        <textarea id="catatan" name="catatan" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
             </div>

@@ -68,11 +68,6 @@
         </div>
 
         <div class="card-body">
-        <form action="{{ route('export.booking') }}" style="margin-bottom:15px" method="GET">
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Export Booking
-            </button>
-        </form>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover text-center">
                     <thead class="thead-light">

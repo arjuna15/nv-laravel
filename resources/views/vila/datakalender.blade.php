@@ -32,7 +32,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover text-center" id="villaTable">
+                <table class="table table-bordered table-striped text-center" id="villaTable">
                     <thead class="thead-light">
                         <tr>
                             <th>No</th>
@@ -47,7 +47,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $v['vila_id'] }}</td>
-                                <td class="font-weight-bold text-primary">{{ $v['nama_vila'] }}</td>
+                                <td>{{ $v['nama_vila'] }}</td>
                                 <td>
                                     <span class="badge badge-info px-3 py-2 shadow-sm">
                                         {{ $v['total_booking'] }} Booking
@@ -78,7 +78,7 @@
             <h6 class="m-0 font-weight-bold">📅 Daftar Tamu Booking Hari Ini</h6>
         </div>
         <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-striped text-center">
                 <thead class="thead-light">
                     <tr>
                         <th>No Booking</th>
@@ -121,7 +121,7 @@
             <h6 class="m-0 font-weight-bold">💰 Daftar Tamu Pelunasan Hari Ini</h6>
         </div>
         <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-striped text-center">
                 <thead class="thead-light">
                     <tr>
                         <th>No</th>

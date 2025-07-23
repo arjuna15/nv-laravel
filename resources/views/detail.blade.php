@@ -100,8 +100,6 @@
                             <div class="room-detail_form">
                                 <label for="checkin">Tanggal Checkin</label>
                                 <input id="checkin" type="text" class="awe-calendar from" placeholder="Tanggal Checkin">
-                                <label for="checkout">Tanggal Checkout</label>
-                                <input id="checkout" type="text" class="awe-calendar to" placeholder="Tanggal Checkout">
                                 <label for="guests">Jumlah Tamu</label>
                                 <select id="guests" class="awe-select">
                                     <option selected disabled>Pilih Jumlah Orang</option>
@@ -502,4 +500,59 @@
             }
         });
         </script>
+
+        <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkinInput = document.getElementById('checkin');
+        const hargaInput = document.getElementById('harga_show');
+
+        // Aktifkan datepicker dengan format default MM/DD/YYYY
+        if (typeof $ !== 'undefined' && $.fn.datepicker) {
+            $(checkinInput).datepicker({
+                dateFormat: 'mm/dd/yy',
+                onSelect: function (selectedDate) {
+                    updateHarga(selectedDate);
+                }
+            });
+        }
+
+        function updateHarga(dateStr) {
+            const tanggal = parseTanggalUs(dateStr);
+            if (isNaN(tanggal)) {
+                hargaInput.value = '';
+                return;
+            }
+
+            const hari = tanggal.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+
+            const hargaMingguKamis = parseInt(checkinInput.dataset.hargaMingguKamis);
+            const hargaJumat = parseInt(checkinInput.dataset.hargaJumat);
+            const hargaSabtu = parseInt(checkinInput.dataset.hargaSabtu);
+
+            let harga = 0;
+
+            if ([1, 2, 3, 4].includes(hari)) {
+                harga = hargaMingguKamis;
+            } else if (hari === 5) {
+                harga = hargaJumat;
+            } else if (hari === 6 || hari === 0) {
+                harga = hargaSabtu;
+            }
+
+            const hargaFormat = harga.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            });
+
+            hargaInput.value = hargaFormat;
+        }
+
+        function parseTanggalUs(dateStr) {
+            const [mm, dd, yyyy] = dateStr.split('/');
+            return new Date(`${yyyy}-${mm}-${dd}`);
+        }
+    });
+</script>
+
 @endpush

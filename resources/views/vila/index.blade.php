@@ -32,7 +32,7 @@
         </div>
 
         <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover table-sm mb-0" style="text-align:center" id="villaTable">
+            <table class="table table-bordered table-striped text-center" style="text-align:center" id="villaTable">
                 <thead class="thead-light">
                     <tr>
                         <th style="width: 40px;">No</th>

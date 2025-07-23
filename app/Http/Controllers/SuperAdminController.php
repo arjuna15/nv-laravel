@@ -13,6 +13,8 @@ use Intervention\Image\Facades\Image as ImageManager;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel; // ✅ Tambahkan baris ini
+use App\Exports\BookingExport;
 use Carbon\CarbonPeriod;
 
 
@@ -124,6 +126,110 @@ class SuperAdminController extends Controller
         ]);
     }
 
+    public function detailVillaPM($id)
+    {
+        $villa = Vila::findOrFail($id);
+        $villas = Vila::all();
+        $reservasi = Reservasi::where('vila_id', $id)->get();
+        $totalBooking = $reservasi->count();
+
+        // Ambil bulan dari query string, default ke bulan sekarang
+        $bulanString = request('month', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::parse($bulanString);
+
+        // Ambil tanggal dari awal sampai akhir bulan yg dipilih
+        $startOfMonth = $bulan->copy()->startOfMonth();
+        $endOfMonth = $bulan->copy()->endOfMonth();
+        $period = \Carbon\CarbonPeriod::create($startOfMonth, $endOfMonth);
+
+        $reservasiByDate = $reservasi->groupBy(function ($item) {
+            return \Carbon\Carbon::parse($item->check_in_date)->format('Y-m-d');
+        });
+
+        $calendarData = [];
+        foreach ($period as $date) {
+            $formatted = $date->format('Y-m-d');
+            $calendarData[] = [
+                'tanggal' => $formatted,
+                'data' => $reservasiByDate->get($formatted, collect()),
+            ];
+        }
+
+        return view('superadmin.detailtanggalpm', compact(
+            'villa',
+            'villas',
+            'calendarData',
+            'totalBooking'
+        ))->with('bulan', $bulan); // ← agar Blade bisa akses $bulan untuk navigasi
+    }
+
+    public function dataVillaPM()
+    {
+        // Ambil hanya villa yang is_owner_villa == 'yes'
+        $datas = Vila::where('is_owner_villa', 'no')->get();
+
+        $totalUangMasuk = 0;
+        $totalUangMasukBulanIni = 0;
+        $today = \Carbon\Carbon::today();
+        $currentMonth = $today->format('Y-m');
+
+        $todayBookings = [];
+        $monthlySummary = [];
+
+        foreach ($datas as $datad) {
+            $allBooking = Reservasi::where('vila_id', $datad->vila_id)->get();
+
+            $datad->total_booking = $allBooking->count();
+
+            // Ambil booking mulai bulan ini ke depan
+            $bookingMulaiBulanIni = Reservasi::where('vila_id', $datad->vila_id)
+                ->whereDate('check_in_date', '>=', $currentMonth . '-01')
+                ->get();
+
+            $datad->total_uang_masuk = $bookingMulaiBulanIni->sum('uang_masuk');
+            $totalUangMasuk += $datad->total_uang_masuk;
+
+            // Uang masuk bulan ini
+            $bulanIniBooking = Reservasi::where('vila_id', $datad->vila_id)
+                ->where('check_in_date', '>=', $currentMonth . '-01')
+                ->where('check_in_date', '<=', $today->copy()->endOfMonth()->toDateString())
+                ->get();
+
+            $datad->uang_masuk_bulan_ini = $bulanIniBooking->sum('uang_masuk');
+            $totalUangMasukBulanIni += $datad->uang_masuk_bulan_ini;
+
+            // Booking hari ini
+            $bookingsToday = Reservasi::where('vila_id', $datad->vila_id)
+                ->whereDate('created_at', $today->toDateString())
+                ->get();
+
+            foreach ($bookingsToday as $b) {
+                $todayBookings[] = $b;
+            }
+
+            // Rekap bulanan
+            foreach ($allBooking as $booking) {
+                $bulan = \Carbon\Carbon::parse($booking->check_in_date)->format('Y-m');
+                if (!isset($monthlySummary[$bulan])) {
+                    $monthlySummary[$bulan] = [
+                        'total_booking' => 0,
+                        'total_uang_masuk' => 0,
+                    ];
+                }
+                $monthlySummary[$bulan]['total_booking'] += 1;
+                $monthlySummary[$bulan]['total_uang_masuk'] += $booking->uang_masuk;
+            }
+        }
+
+        return view('superadmin.datavillaownerpm', [
+            'villa' => $datas,
+            'total_uang_masuk' => $totalUangMasuk,
+            'total_uang_masuk_bulan_ini' => $totalUangMasukBulanIni,
+            'today_bookings' => $todayBookings,
+            'monthly_summary' => $monthlySummary,
+        ]);
+    }
+
 
     public function dataAdmin()
     {
@@ -179,6 +285,58 @@ class SuperAdminController extends Controller
         ]);
     }
 
+    public function exportExcel(Request $request)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        [$year, $mon] = explode('-', $month);
+
+        $startDate = Carbon::createFromDate($year, $mon, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+
+        $bookings = Reservasi::whereBetween('check_in_date', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->check_in_date)->format('Y-m-d');
+            });
+
+        $result = [];
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dateStr = $date->format('Y-m-d');
+
+            if (isset($bookings[$dateStr])) {
+                foreach ($bookings[$dateStr] as $booking) {
+                    $result[] = [
+                        'No Booking' => $booking->no,
+                        'Nama Tamu' => $booking->nama_tamu,
+                        'Tanggal' => $dateStr,
+                        'Total' => $booking->total,
+                        'Uang Masuk' => $booking->uang_masuk,
+                        'Sisa' => $booking->sisa,
+                        'Pelunasan' => $booking->pelunasan,
+                        'Catatan' => $booking->catatan,
+                        'No HP' => $booking->no_hp,
+                        'Status' => $booking->status,
+                    ];
+                }
+            } else {
+                $result[] = [
+                    'No Booking' => null,
+                    'Nama Tamu' => null,
+                    'Tanggal' => $dateStr,
+                    'Total' => null,
+                    'Uang Masuk' => null,
+                    'Sisa' => null,
+                    'Pelunasan' => null,
+                    'Catatan' => 'Tidak ada reservasi',
+                    'No HP' => null,
+                    'Status' => null,
+                ];
+            }
+        }
+
+        return Excel::download(new BookingExport($result), 'laporan-booking-' . $month . '.xlsx');
+    }
 
 
     public function index()
